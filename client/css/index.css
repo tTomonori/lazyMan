@@ -1,0 +1,57 @@
+:root {
+  --headerHeight: 50px;
+  --menuWidth: 100px;
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+#header {
+  display: flex;
+  height: var(--headerHeight);
+  background-color: lightgray;
+  align-items: center;
+}
+
+#leftMenu {
+  display: inline-block;
+  height: calc(100vh - var(--headerHeight));
+  background-color: white;
+  transition: width 0.5s;
+}
+#leftMenu.close {
+  width: 0;
+}
+#leftMenu.open {
+  width: var(--menuWidth);
+}
+
+#leftMenuContent {
+  height: 100%;
+  width: var(--menuWidth);
+  position: relative;
+  text-align: center;
+  float: right;
+}
+
+#appContent {
+  display: flex;
+}
+
+#viewPort {
+  display: inline-block;
+  height: calc(100vh - var(--headerHeight) - 40px);
+  width: 100%;
+  background-color: black;
+  padding: 20px;
+  overflow-y: scroll;
+}
