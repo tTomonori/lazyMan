@@ -1,6 +1,9 @@
-import { IconButton } from './modules/component/button/IconButton.js';
+import IconButton from './modules/component/button/IconButton.js';
+import ViewPortMode from './mode/ViewPortMode.js';
 import FolderMode from './mode/FolderMode.js';
 import PlayListMode from './mode/PlayListMode.js';
+
+import ct from './constTable.js';
 
 /** ヘッダ */
 const headerDom = $('#header');
@@ -13,21 +16,25 @@ const leftMenuContent = $('#leftMenuContent');
 const viewPort = $('#viewPort');
 
 // ヘッダ
-/** メニューボタン */
+/** @type {IconButton} メニューボタン */
 let menuButton;
-/** 編集ボタン */
+/** @type {IconButton} 編集ボタン */
 let editButton;
 
 // メニュー
-/** フォルダボタン */
+/** @type {IconButton} フォルダボタン */
 let folderButton;
-/** プレイリストボタン */
+/** @type {IconButton} プレイリストボタン */
 let playListButton;
 
 // ビュー
-let currentMode;
+/** @type {ViewPortMode} */
+let currentMode = new ViewPortMode();
 
 init();
+
+window.globalObj = {};
+window.globalObj.getEditMode = getEditMode;
 
 // 初期化--------------------------------------------------
 async function init () {
@@ -51,6 +58,7 @@ function createHeader () {
     size: '45px',
     onClick: changeEditMode,
   });
+  editButton.setProhibitonImage();
   headerDom.append(editButton.dom);
 }
 
@@ -73,7 +81,7 @@ function createMenuContents() {
   leftMenuContent.append(playListButton.dom);
 }
 
-// 動作--------------------------------------------------
+// 共通要素動作--------------------------------------------------
 /** メニュー表示切替 */
 function changeLeftMenuDisp() {
   if (leftMenu.hasClass('close')) {
@@ -89,25 +97,22 @@ function changeLeftMenuDisp() {
 /** 編集モード切替 */
 function changeEditMode() {
   editButton.setProhibitonImage();
+  currentMode.setEditMode(getEditMode());
 };
 
+function getEditMode () {
+  return editButton.isProhibition() ? ct.editMode.READONLY : ct.editMode.EDITABLE;
+}
+
+// コンテンツ動作--------------------------------------------------
 /** フォルダ表示 */
 function setDisplayFolderMode () {
-  if (currentMode) { currentMode.end(); }
-  let viewPortElement = createViewPortElement();
-  currentMode = new FolderMode (viewPortElement);
+  currentMode.end();
+  currentMode = new FolderMode (viewPort);
 }
 
 /** プレイリスト表示 */
 function setPlayListMode () {
-  if (currentMode) { currentMode.end(); }
-  let viewPortElement = createViewPortElement();
-  currentMode = new PlayListMode (viewPortElement);
-}
-
-/** viewPortにhost用のelementを作成 */
-function createViewPortElement () {
-  let element = $('<div>');
-  viewPort.append(element);
-  return element;
+  currentMode.end();
+  currentMode = new PlayListMode (viewPort);
 }

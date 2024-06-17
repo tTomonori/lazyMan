@@ -1,3 +1,4 @@
+/* ListDisplay */
 .ListDisplayListContainer {
   width: 100%;
   height: 100%;
@@ -23,6 +24,7 @@
   background-color: rgb(30, 30, 30);
 }
 
+/* FolderDisplay */
 .FolderDisplayIcon {
   display: inline-block;
   height: 100%;
@@ -33,5 +35,30 @@
 }
 
 .FolderDisplayName {
+  display: inline-block;
+}
+
+/* FileDisplay */
+.FileDisplay {
+  position: relative;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  background-color: aliceblue;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.FileDisplayInput {
+  font-size: 30px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.FileDisplayLabel {
+  border-bottom: solid black 2px;
+  margin-bottom: 10px;
+}
+
+.FileDisplayMiniInput {
   display: inline-block;
 }

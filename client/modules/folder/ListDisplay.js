@@ -12,7 +12,7 @@ const DRAGGABLE_CLASSNAME = 'elementsDraggable';
  * @property {String} lineMargin
  */
 
-export class ListDisplay {
+export default class ListDisplay {
   /**
    * 
    * @param {Object} dom 

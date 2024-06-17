@@ -37,11 +37,8 @@ module.exports = class FolderReader {
         let pathInfo = path.parse(dirent.name);
         if (!allowedExtname.includes(pathInfo.ext)) { continue; }
         let info = await this.readInfo(pathInfo.name);
-        fileInfo.push({
-          type: pathInfo.ext,
-          name: info ? info.dispName : dirent.name,
-          physicsName: dirent.name,
-        });
+        if (!info) { info = this.createFileInfo(pathInfo.base); }
+        fileInfo.push(info);
       }
     }
 
@@ -53,6 +50,16 @@ module.exports = class FolderReader {
     };
   }
   /**
+   * ファイル情報を読み込む
+   * @param {String} physicsName ファイル名
+   */
+  static async readFile (physicsName) {
+    let pathInfo = path.parse(physicsName);
+    let info = await this.readInfo(pathInfo.name);
+    if (!info) { info = this.createFileInfo(pathInfo.base); }
+    return info;
+  }
+  /**
    * ファイルの情報ファイルを読み込む
    * @param {String} name fileInfoPathからの相対パス
    * @returns {Object}
@@ -60,5 +67,19 @@ module.exports = class FolderReader {
   static async readInfo (name) {
   let json = await CommonReader.loadJson(`${fileInfoPath}/${name}.json`);
   return json;
+  }
+  /**
+   * ファイル情報を生成する
+   * @param {Stirng} physicsName 
+   * @returns {FileInfo}
+   */
+  static createFileInfo(physicsName) {
+    let pathInfo = path.parse(physicsName);
+    return {
+      type: pathInfo.ext,
+      name: physicsName,
+      physicsName: physicsName,
+      lyrics: '',
+    };
   }
 };

@@ -5,6 +5,7 @@ export default class PlayListMode extends ViewPortMode {
     super();
     this.viewPort = dom;
   }
+  setEditMode (editMode) {}
   end () {
     this.viewPort.remove();
   }

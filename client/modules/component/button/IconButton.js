@@ -1,6 +1,6 @@
-import { CommonButton } from './CommonButton.js';
+import CommonButton from './CommonButton.js';
 
-export class IconButton extends CommonButton {
+export default class IconButton extends CommonButton {
   constructor (option) {
     let thisOption = Object.assign({
       icon: '',
@@ -38,6 +38,14 @@ export class IconButton extends CommonButton {
     if (!this.prohibitionDom) { return; }
     this.prohibitionDom.remove();
     this.prohibitionDom = null;
+  }
+  /**
+   * 無効化された見た目の有効化/無効化
+   * @param {Boolean} isDisabled 
+   */
+  setDisabled (isDisabled) {
+    if (isDisabled) { this.dom.addClass('iconButtonDisabled'); }
+    else { this.dom.removeClass('iconButtonDisabled'); }
   }
   /** 子要素生成 */
   createChildDom () {

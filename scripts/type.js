@@ -18,4 +18,6 @@
  * @property {String} type 拡張子(ピリオド有り)
  * @property {String} name 表示名
  * @property {String} physicsName 物理名
+ * @property {String} lyrics 歌詞
+ * @property {Number} lyricsSize 歌詞のフォントサイズ
  */

@@ -1,6 +1,6 @@
 window.buttonCss = window.buttonCss || $('<link rel="stylesheet" href="./client/css/component/button.css">').appendTo('head');
 
-export class CommonButton {
+export default class CommonButton {
   constructor (option) {
     this.dom = $('<div>');
     this.dom.addClass('commonButton');

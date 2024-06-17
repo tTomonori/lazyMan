@@ -10,4 +10,5 @@ export default {
     FOLDER: 'folder',
     PLAYLIST: 'playList',
   },
+  global: () => { return window.globalObj; }
 }

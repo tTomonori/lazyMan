@@ -18,3 +18,8 @@
   background-size: contain;
   background-repeat: no-repeat;
 }
+
+.iconButton.iconButtonDisabled {
+  opacity: 0.1;
+  pointer-events: none;
+}

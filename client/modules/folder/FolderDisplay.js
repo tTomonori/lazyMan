@@ -1,4 +1,4 @@
-import { ListDisplay } from './ListDisplay.js'
+import ListDisplay from './ListDisplay.js'
 import ct from '../../constTable.js';
 window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/css/folder.css">').appendTo('head');
 
@@ -21,7 +21,7 @@ const BACK_KEY = '/back';
  * @property {String} lineMargin
  */
 
-export class FolderDisplay extends ListDisplay {
+export default class FolderDisplay extends ListDisplay {
   constructor (dom, option) {
     super(dom, option);
     super.setOption({

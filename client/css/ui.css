@@ -1,0 +1,26 @@
+.singleLineInput {
+  border: none;
+  resize: none;
+  outline: none;
+  background-color: transparent;
+  border-bottom: solid paleturquoise 2px;
+}
+
+.singleLineInput::placeholder {
+  color: lightgray;
+}
+
+.singleLineInput:focus:not(:read-only) {
+  border-bottom: solid skyblue 2px;
+}
+
+.multiLineTextarea {
+  border: solid paleturquoise 2px;
+  resize: none;
+  outline: none;
+  background-color: transparent;
+}
+
+.multiLineTextarea:focus:not(:read-only) {
+  border: solid skyblue 2px;
+}
