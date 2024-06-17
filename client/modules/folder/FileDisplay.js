@@ -140,7 +140,7 @@ export default class FileDisplay {
       type: this.fileInfo.type,
       name: this.nameArea.val(),
       physicsName: this.fileInfo.physicsName,
-      lyrics: this.physicsArea.text(),
+      lyrics: this.lyricsArea.text(),
       lyricsSize: this.lyricsSizeArea.val(),
     };
   }

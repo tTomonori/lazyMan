@@ -60,6 +60,20 @@ module.exports = class FolderReader {
     return info;
   }
   /**
+   * ファイル情報を保存する
+   * @param {FileInfo} info 
+   */
+  static async saveFile (info) {
+    let fileInfo = {
+      type: info.type,
+      name: info.name,
+      physicsName: info.physicsName,
+      lyrics: info.lyrics,
+      lyricsSize: info.lyricsSize,
+    };
+    await this.writeFileInfo(fileInfo);
+  }
+  /**
    * ファイルの情報ファイルを読み込む
    * @param {String} name fileInfoPathからの相対パス
    * @returns {Object}
@@ -67,6 +81,14 @@ module.exports = class FolderReader {
   static async readInfo (name) {
   let json = await CommonReader.loadJson(`${fileInfoPath}/${name}.json`);
   return json;
+  }
+  /**
+   * ファイル情報を書き出す
+   * @param {FileInfo} info 
+   */
+  static async writeFileInfo (info) {
+    let pathInfo = path.parse(info.physicsName);
+    await CommonReader.writeJson(`${fileInfoPath}/${pathInfo.name}.json`, info);
   }
   /**
    * ファイル情報を生成する

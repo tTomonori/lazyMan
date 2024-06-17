@@ -19,6 +19,13 @@ router.post('/openFile', async (req, res) => {
   res.send(fileInfo);
 });
 
+/** ファイル情報保存 */
+router.post('/saveFile', async (req, res) => {
+  let info = req.body.info;
+  await FolderReader.saveFile(info);
+  res.send();
+});
+
 /** フォルダルートを読み込む */
 async function setFolderRoot () {
   let json = await CommonReader.loadJson(__dirname + '/../../_data/LazyManSettings.json');

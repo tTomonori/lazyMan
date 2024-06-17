@@ -45,7 +45,8 @@ export default class FolderMode extends ViewPortMode {
       this.resetPort();
       this.fileDisplay = new FileDisplay(this.viewPort, {
         onRegist: () => {
-
+          let info = this.fileDisplay.getEditedFilInfo();
+          this.saveFileInfo(info);
         },
         onBack: () => {
           this.openFolder(this.currentPath);
@@ -67,6 +68,18 @@ export default class FolderMode extends ViewPortMode {
         isEditable: editMode === ct.editMode.EDITABLE,
       });
     }
+  }
+  async saveFileInfo (info) {
+    $.ajax({
+      url: './saveFile',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ info: info }),
+    })
+    .done((data) => {
+      
+    });
   }
   end () {
     this.viewPort.remove();

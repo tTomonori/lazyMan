@@ -13,4 +13,15 @@ module.exports = {
       res(data);
     });
   },
+  /**
+   * jsonを書き込む
+   * @param {String} path 
+   * @param {Object} json 
+   */
+  writeJson: async (path, json) => {
+    return new Promise(async (res, rej) => {
+      await fs.writeFileSync(path, JSON.stringify(json));
+      res();
+    });
+  }
 }
