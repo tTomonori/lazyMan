@@ -1,6 +1,7 @@
 const ELEMENT_CLASSNAME = 'ListDisplayElement';
 const ELEMENTKEY_DATANAME = 'elementkey';
 const DRAGGABLE_CLASSNAME = 'elementsDraggable';
+window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/css/folder.css">').appendTo('head');
 
 /**
  * @typedef {Object} ListDisplayOption
@@ -14,7 +15,6 @@ const DRAGGABLE_CLASSNAME = 'elementsDraggable';
 
 export default class ListDisplay {
   /**
-   * 
    * @param {Object} dom 
    * @param {ListDisplayOption} option 
    */
@@ -36,10 +36,15 @@ export default class ListDisplay {
     this.applyOption();
     this.setEvents();
   }
+  /**
+   * optionを変更
+   * @param {ListDisplayOption} option 
+   */
   setOption (option) {
     Object.assign(this.option, option);
     this.applyOption();
   }
+  /** optionの設定を反映する */
   applyOption () {
     if (this.option.isDraggable) {
       this.listContainer.addClass(DRAGGABLE_CLASSNAME);
@@ -48,6 +53,7 @@ export default class ListDisplay {
       this.listContainer.removeClass(DRAGGABLE_CLASSNAME);
     }
   }
+  /** イベント設定 */
   setEvents () {
     $(this.host).on('mouseup', `.${ELEMENT_CLASSNAME}`, (e) => {
       let key = $(e.currentTarget).data(ELEMENTKEY_DATANAME);

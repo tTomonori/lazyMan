@@ -10,5 +10,8 @@ export default {
     FOLDER: 'folder',
     PLAYLIST: 'playList',
   },
+  path: {
+    icon: '/client/image/icon/',
+  },
   global: () => { return window.globalObj; }
 }

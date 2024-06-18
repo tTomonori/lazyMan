@@ -1,20 +1,26 @@
 import IconButton from '../component/button/IconButton.js';
 
 /**
- * @typedef {Object} FIleDisplayOption
+ * @typedef {Object} FileDisplayOption
  * @property {function():void} onRegist
  * @property {function():void} onBack
  * @property {Boolean} isEditable
  */
 
 export default class FileDisplay {
+  /**
+   * @param {jQueryElement} dom 
+   * @param {FileDisplayOption} option 
+   */
   constructor (dom, option) {
     this.host = dom;
+    /** @type {FileDisplayOption} */
     this.option = Object.assign({
       onRegist: () => {},
       onBack: () => {},
       isEditable: true,
     }, option);
+    /** @type {import('../../../scripts/type.js').FileInfo} */
     this.fileInfo = {};
     this.host.addClass('FileDisplay');
     this.saveButton;
@@ -23,16 +29,25 @@ export default class FileDisplay {
     this.lyricsSizeArea;
     this.inputArea = [];
   }
+  /**
+   * オプションを変更
+   * @param {FileDisplayOption} option 
+   */
   setOption (option) {
     Object.assign(this.option, option);
     this.applyOption();
   }
+  /** オプションを適用 */
   applyOption () {
     this.inputArea.forEach((inputArea) => {
       inputArea.prop('readonly', !this.option.isEditable);
     });
     this.saveButton.setDisabled(!this.option.isEditable);
   }
+  /**
+   * ファイル情報を開く
+   * @param {String} fileName 
+   */
   open (fileName) {
     $.ajax({
       url: './openFile',
@@ -134,7 +149,10 @@ export default class FileDisplay {
     lyricsSizeArea.trigger('blur');
     this.applyOption();
   }
-  /** 編集中のファイル情報を取得 */
+  /**
+   * 編集中のファイル情報を取得
+   * @returns {import('../../../scripts/type.js').FileInfo}
+   */
   getEditedFilInfo () {
     return {
       type: this.fileInfo.type,

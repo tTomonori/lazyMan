@@ -1,5 +1,5 @@
 import ViewPortMode from './ViewPortMode.js';
-import FolderDisplay from '../modules/folder/FolderDisplay.js';
+import DirectoryDisplay from '../modules/folder/DirectoryDisplay.js';
 import FileDisplay from '../modules/folder/FileDisplay.js';
 
 import ct from '../constTable.js';
@@ -8,38 +8,34 @@ export default class FolderMode extends ViewPortMode {
   constructor (dom) {
     super(dom);
     this.currentPath = '';
-    this.folderDisplay = null;
+    /** @type {DirectoryDisplay} */
+    this.directoryDisplay = null;
+    /** @type {FileDisplay} */
     this.fileDisplay = null;
     this.viewPort = super.createViewPort();
     // ルートフォルダを開く
     this.openFolder('');
   }
+  /**
+   * フォルダ情報を開く
+   * @param {String} path 
+   */
   openFolder (path) {
-    if (!this.folderDisplay) {
+    if (!this.directoryDisplay) {
       this.resetPort();
-      this.folderDisplay = new FolderDisplay(this.viewPort, {
-        onClick: (key) => {
-          console.log(key)
+      this.directoryDisplay = new DirectoryDisplay(this.viewPort, {
+        onSelectFile: (info) => {
+          this.openFile(info.key);
         },
-        onDoubleClick: (info) => {
-          switch (info.type) {
-            case 'directory':
-              this.currentPath = this.folderDisplay.getCurrentPath() + '/' + info.physicsName;
-              this.openFolder(this.currentPath);
-              break;
-            default:
-              this.openFile(info.physicsName);
-              break;
-          }
-        },
-        onDrop: (dragKey, dropKey) => {
-          console.log(dragKey + '→' + dropKey);
-        }
       });
     }
     this.currentPath = path;
-    this.folderDisplay.open(path);
+    this.directoryDisplay.open(path);
   }
+  /**
+   * ファイル情報を開く
+   * @param {String} fileName 
+   */
   openFile (fileName) {
     if (!this.fileDisplay) {
       this.resetPort();
@@ -58,7 +54,7 @@ export default class FolderMode extends ViewPortMode {
   }
   resetPort () {
     this.viewPort.remove();
-    this.folderDisplay = null;
+    this.directoryDisplay = null;
     this.fileDisplay = null;
     this.viewPort = super.createViewPort();
   }
@@ -69,6 +65,10 @@ export default class FolderMode extends ViewPortMode {
       });
     }
   }
+  /**
+   * ファイル情報を保存
+   * @param {import('../../scripts/type.js').FileInfo} info 
+   */
   async saveFileInfo (info) {
     $.ajax({
       url: './saveFile',

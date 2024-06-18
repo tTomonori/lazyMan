@@ -2,7 +2,7 @@
  * @typedef {Object} DirectoryInfo
  * @property {String} current このディレクトリのパス
  * @property {String} parent 親ディレクトリのパス
- * @property {Array<FileInfo>} folders
+ * @property {Array<FolderInfo>} folders
  * @property {Array<FileInfo>} files
  */
 
@@ -21,3 +21,5 @@
  * @property {String} lyrics 歌詞
  * @property {Number} lyricsSize 歌詞のフォントサイズ
  */
+
+export default {};
