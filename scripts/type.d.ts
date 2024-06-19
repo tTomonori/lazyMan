@@ -8,7 +8,7 @@
 
 /**
  * @typedef {Object} FolderInfo
- * @property {String} type 'directory'
+ * @property {String} type 'folder'
  * @property {String} name 表示名
  * @property {String} physicsName 物理名
  */
@@ -22,4 +22,17 @@
  * @property {Number} lyricsSize 歌詞のフォントサイズ
  */
 
-export default {};
+
+/**
+ * @typedef {Object} PlayListFolderInfo
+ * @property {String} type 'folder' or 'list'
+ * @property {String} name
+ * @property {Array<Object>} elements
+ */
+
+/**
+ * @typedef {Object} PlayListInfo
+ * @property {String} type
+ * @property {String} name
+ * @property {Array<Object>} list
+ */

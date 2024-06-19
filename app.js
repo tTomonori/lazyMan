@@ -19,6 +19,7 @@ app.get(`/${firstPath}`, (req, res) => {
 });
 
 app.use(require('./server/routes/folderRouter.js'));
+app.use(require('./server/routes/playListRouter.js'));
 
 // ポート指定で接続
 app.listen(port);

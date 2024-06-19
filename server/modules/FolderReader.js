@@ -27,7 +27,7 @@ module.exports = class FolderReader {
       // ディレクトリ
       if (dirent.isDirectory()) {
         folderInfo.push({
-          type: 'directory',
+          type: 'folder',
           name: dirent.name,
           physicsName: dirent.name,
         });

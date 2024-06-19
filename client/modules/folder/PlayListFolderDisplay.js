@@ -1,18 +1,20 @@
 import FolderDisplay from './FolderDisplay.js';
-
 import ct from '../../constTable.js';
 
 const BACK_KEY = '/back';
+const NEW_KEY = '/new';
 
 /**
- * @typedef {Object} DirectoryDisplayOption オプション
- * @property {function(DirectoryDispElement):void} onSelectFile ファイル選択時
+ * @typedef {Object} PlayListFolderDisplayOption
+ * @property {function(import('./FolderDisplay.js').DirectoryDispElement):void} onPlayListSelected
+ * @property {function(import('./FolderDisplay.js').DirectoryDispElement,import('./FolderDisplay.js').DirectoryDispElement):void} onDrop
+ * @property {Boolean} isEditable
  */
 
-export default class DirectoryDisplay {
+export default class PlayListFolderDisplay {
   /**
-   * @param {jQueryElement} dom 
-   * @param {DirectoryDisplayOption} option 
+   * @param {jQuery} dom 
+   * @param {PlayListFolderDisplayOption} option 
    */
   constructor (dom, option) {
     this.host = dom;
@@ -20,46 +22,55 @@ export default class DirectoryDisplay {
     this.folderDisplay = new FolderDisplay(dom, {
       createElement: null,
       onSelectFolder: (elem) => { this.open(this.getCurrentPath() + '/' + elem.key); },
-      onSelectFile: (elem) => { this.option.onSelectFile(elem); },
+      onSelectFile: (elem) => { this.option.onPlayListSelected(elem); },
       onSelectUi: (elem) => {
         if (elem.key === BACK_KEY) {
           this.open(this.getCurrentPath() + '/..');
+        }
+        else if (elem.key === NEW_KEY) {
+
         }
       },
       folderClickThreshold: 1,
       fileClickThreshold: 1,
       uiClickThreshold: 1,
-      onDrop: () => {},
-      isDraggable: false,
+      onDrop: (dragged, dropped) => {},
+      isDraggable: option.isEditable,
       lineMargin: '10px',
     });
-    /** @type {import('../../../scripts/type.d.ts').DirectoryInfo} */
+    /** @type {import('../../../scripts/type.js').DirectoryInfo} */
     this.directoryInfo = null;
   }
-  getCurrentPath () {
-    return this.directoryInfo ? this.directoryInfo.current : '';
+  setEditMode (editMode) {
+    this.option.isEditable = editMode === ct.editMode.EDITABLE;
+    this.folderDisplay.setOption({ isDraggable: this.option.isEditable });
+    let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
+    this.folderDisplay.open(dispInfo);
   }
-  isRoot (path) {
-    return ['', '\\', '/', '.'].includes(path);
+  getCurrentPath () {
+    return this.directoryInfo.current;
+  }
+  isRoot () {
+    return ['', '\\', '/', '.'].includes(this.directoryInfo.current);
   }
   /**
    * 指定したパスのフォルダを表示
    * @param {String} path 
    */
   async open (path) {
-    this.directoryInfo = await this.fetchDirectoryInfo(path);
+    this.directoryInfo = await this.fetchPlayListFolderInfo(path);
     let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
     this.folderDisplay.open(dispInfo);
   }
   /**
-   * サーバからディレクトリ情報を取得
+   * サーバからプレイリストフォルダ情報を取得
    * @param {String} path 
    * @returns {Promise<import('../../../scripts/type.js').DirectoryInfo>}
    */
-  async fetchDirectoryInfo (path) {
+  async fetchPlayListFolderInfo (path) {
     return new Promise((res, rej) => {
       $.ajax({
-        url: './openFolder',
+        url: './openPlayListFolder',
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json',
@@ -76,10 +87,11 @@ export default class DirectoryDisplay {
    * @returns {import('./FolderDisplay.js').DirectoryDispInfo}
    */
   createDirectoryDispInfo (data) {
-    let back = [];
+    let head = [];
+    let tail = [];
     if (!this.isRoot(data.current)) {
       // 親ディレクトリへ移動ボタン
-      back = [{
+      head = [{
         type: FolderDisplay.directoryElementType.UI,
         key: BACK_KEY,
         name: '',
@@ -97,12 +109,22 @@ export default class DirectoryDisplay {
       type: FolderDisplay.directoryElementType.FILE,
       key: info.physicsName,
       name: info.name,
-      icon: ct.path.icon + 'musicFile.png',
+      icon: ct.path.icon + 'musicList.png',
     }));
+    if (this.option.isEditable) {
+      // フォルダ新規作成ボタン
+      tail = [{
+        type: FolderDisplay.directoryElementType.UI,
+        key: NEW_KEY,
+        name: '',
+        icon: ct.path.icon + 'plus.png',
+        displayOption: { height: '20px' },
+      }]
+    }
 
     return {
       name: data.current,
-      elements: [...back, ...folders, ...files],
+      elements: [...head, ...folders, ...files, ...tail],
     };
   }
 }
