@@ -2,6 +2,7 @@ import IconButton from './modules/component/button/IconButton.js';
 import ViewPortMode from './mode/ViewPortMode.js';
 import FolderMode from './mode/FolderMode.js';
 import PlayListMode from './mode/PlayListMode.js';
+import Cover from './modules/ui/Cover.js';
 
 import ct from './constTable.js';
 
@@ -108,11 +109,13 @@ function getEditMode () {
 /** フォルダ表示 */
 function setDisplayFolderMode () {
   currentMode.end();
+  Cover.reset();
   currentMode = new FolderMode (viewPort);
 }
 
 /** プレイリスト表示 */
 function setPlayListMode () {
   currentMode.end();
+  Cover.reset();
   currentMode = new PlayListMode (viewPort);
 }

@@ -2,6 +2,8 @@ import ViewPortMode from './ViewPortMode.js';
 import PlayListFolderDisplay from '../modules/folder/PlayListFolderDisplay.js';
 import PlayListDisplay from '../modules/folder/PlayListDisplay.js';
 
+import Popup from '../modules/ui/Popup.js';
+
 import ct from '../constTable.js';
 
 export default class PlayListMode extends ViewPortMode {
@@ -18,8 +20,8 @@ export default class PlayListMode extends ViewPortMode {
     if (!this.playListFolderDisplay) {
       this.resetPort();
       this.playListFolderDisplay = new PlayListFolderDisplay(this.viewPort, {
-        onPlayListSelected: () => {},
-        onDrop: () => {},
+        onPlayListSelected: (elem) => { Popup.popupChoice('test', ['1', '2'], () => { console.log('ok'); }); },
+        onDrop: (dragged, dropped) => {},
         isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
       });
     }

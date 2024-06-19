@@ -1,4 +1,5 @@
 .commonButton {
+  display: inline-block;
   scale: 100%;
   transition: scale 0.3s;
 }

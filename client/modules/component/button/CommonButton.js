@@ -1,6 +1,16 @@
 window.buttonCss = window.buttonCss || $('<link rel="stylesheet" href="./client/css/component/button.css">').appendTo('head');
 
+/**
+ * @typedef {Object} CommonButtonOption
+ * @property {function():void} onClick
+ * @property {String|Object} size '' or {width: '', height: ''}
+ * @property {Object} style
+ */
+
 export default class CommonButton {
+  /**
+   * @param {CommonButtonOption} option 
+   */
   constructor (option) {
     this.dom = $('<div>');
     this.dom.addClass('commonButton');
@@ -13,7 +23,6 @@ export default class CommonButton {
     this.dom.css(Object.assign({
       width: typeof this.option.size === 'string' ? this.option.size : this.option.size.width,
       height: typeof this.option.size === 'string' ? this.option.size : this.option.size.height,
-      display: 'inline-block',
     }, this.style));
 
     $(this.dom).on('click', this.option.onClick);

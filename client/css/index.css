@@ -53,11 +53,18 @@ input[type="number"]::-webkit-inner-spin-button {
   display: flex;
 }
 
-#viewPort {
+#view {
   display: inline-block;
-  height: calc(100vh - var(--headerHeight) - 40px);
+  position: relative;
+  height: calc(100vh - var(--headerHeight));
   width: 100%;
   background-color: black;
+  overflow: hidden;
+}
+#viewPort {
+  position: absolute;
+  height: calc(100% - 40px);
+  width: calc(100% - 40px);
   padding: 20px;
   overflow-y: scroll;
 }
