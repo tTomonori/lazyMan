@@ -1,5 +1,5 @@
 import ViewPortMode from './ViewPortMode.js';
-import DirectoryDisplay from '../modules/folder/DirectoryDisplay.js';
+import DirectoryExplorer from '../modules/folder/DirectoryExplorer.js';
 import FileDisplay from '../modules/folder/FileDisplay.js';
 
 import ct from '../constTable.js';
@@ -8,8 +8,8 @@ export default class FolderMode extends ViewPortMode {
   constructor (dom) {
     super(dom);
     this.currentPath = '';
-    /** @type {DirectoryDisplay} */
-    this.directoryDisplay = null;
+    /** @type {DirectoryExplorer} */
+    this.directoryExplorer = null;
     /** @type {FileDisplay} */
     this.fileDisplay = null;
     this.viewPort = super.createViewPort();
@@ -21,16 +21,16 @@ export default class FolderMode extends ViewPortMode {
    * @param {String} path 
    */
   openFolder (path) {
-    if (!this.directoryDisplay) {
+    if (!this.directoryExplorer) {
       this.resetPort();
-      this.directoryDisplay = new DirectoryDisplay(this.viewPort, {
+      this.directoryExplorer = new DirectoryExplorer(this.viewPort, {
         onSelectFile: (info) => {
           this.openFile(info.key);
         },
       });
     }
     this.currentPath = path;
-    this.directoryDisplay.open(path);
+    this.directoryExplorer.open(path);
   }
   /**
    * ファイル情報を開く
@@ -54,7 +54,7 @@ export default class FolderMode extends ViewPortMode {
   }
   resetPort () {
     this.viewPort.remove();
-    this.directoryDisplay = null;
+    this.directoryExplorer = null;
     this.fileDisplay = null;
     this.viewPort = super.createViewPort();
   }

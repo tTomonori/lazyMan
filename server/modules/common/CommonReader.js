@@ -4,6 +4,7 @@ module.exports = {
   /**
    * jsonを読み込む
    * @param {String} path
+   * @returns {Promise<Object>}
    */
   loadJson: async (path) => {
     return new Promise((res, rej) => {

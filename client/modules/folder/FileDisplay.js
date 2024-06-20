@@ -20,7 +20,7 @@ export default class FileDisplay {
       onBack: () => {},
       isEditable: true,
     }, option);
-    /** @type {import('../../../scripts/type.js').FileInfo} */
+    /** @type {MusicFileInfo} */
     this.fileInfo = {};
     this.host.addClass('FileDisplay');
     this.saveButton;
@@ -122,7 +122,7 @@ export default class FileDisplay {
     this.host.append(lyricsArea);
     let relativeTop = lyricsArea.position().top - parseInt(this.host.css('paddingTop'));
     lyricsArea.css({ width: '100%', height: `calc(100% - ${relativeTop}px)` });
-    lyricsArea.text(this.fileInfo.lyrics);
+    lyricsArea.text(this.fileInfo.data.lyrics);
     this.inputArea.push(lyricsArea);
     // 歌詞フォントサイズ
     let lyricsSizeArea = $('<input>');
@@ -133,7 +133,7 @@ export default class FileDisplay {
     lyricsSizeArea.prop('placeholder', 'XXX');
     lyricsSizeArea.prop('max', 999);
     lyricsSizeArea.prop('min', 0);
-    lyricsSizeArea.val(this.fileInfo.lyricsSize);
+    lyricsSizeArea.val(this.fileInfo.data.lyricsSize);
     lyricsLabel.append(lyricsSizeArea);
     lyricsLabel.append('<span style="font-size: 10px">px</span>');
     this.inputArea.push(lyricsSizeArea);
@@ -151,15 +151,17 @@ export default class FileDisplay {
   }
   /**
    * 編集中のファイル情報を取得
-   * @returns {import('../../../scripts/type.js').FileInfo}
+   * @returns {MusicFileInfo}
    */
   getEditedFilInfo () {
     return {
       type: this.fileInfo.type,
       name: this.nameArea.val(),
       physicsName: this.fileInfo.physicsName,
-      lyrics: this.lyricsArea.text(),
-      lyricsSize: this.lyricsSizeArea.val(),
+      data: {
+        lyrics: this.lyricsArea.val(),
+        lyricsSize: this.lyricsSizeArea.val(),
+      },
     };
   }
 }

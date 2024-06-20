@@ -3,12 +3,43 @@ const path = require('path');
 
 const CommonReader = require('../modules/common/CommonReader');
 
+const PLAYLIST_FILE_PATH = __dirname + '/../../_data/PlayList.json';
+
 let playListRootInfo;
 
 module.exports = class PlayListReader {
+  /** プレイリストフォルダ情報読み込み */
   static async readPlayList () {
-    let json = await CommonReader.loadJson(__dirname + '/../../_data/PlayList.json');
+    let json = await CommonReader.loadJson(PLAYLIST_FILE_PATH);
     playListRootInfo = json;
+  }
+  /** プレイリストフォルダ情報を書き込む */
+  static async writeFolder () {
+    await CommonReader.writeJson(PLAYLIST_FILE_PATH, playListRootInfo);
+  }
+  /**
+   * パスを階層分けしてArrayで返す
+   * @param {String} path 
+   * @returns {Array<String>}
+   */
+  static ditectHierarchy (targetPath) {
+    targetPath = path.normalize(targetPath);
+    return targetPath.split(/\\|\./g).filter(route => route !== '');
+  }
+  /**
+   * 指定したパスの情報を取得
+   * @param {String|Array<String>} targetPath 
+   * @returns {HierarchyInfo}
+   */
+  static getElement (targetPath) {
+    let hierarchy = Array.isArray(targetPath) ? targetPath : this.ditectHierarchy(targetPath);
+    // フォルダ探索
+    let current = playListRootInfo.root;
+    for (let route of hierarchy) {
+      let nextFolder = current.folders.find(elem => elem.name === route);
+      current = nextFolder;
+    }
+    return current;
   }
   /**
    * 指定したプレイリストフォルダ情報を取得
@@ -16,40 +47,66 @@ module.exports = class PlayListReader {
    * @returns {DirectoryInfo}
    */
   static readPlayListFolder (targetPath) {
-    targetPath = path.normalize(targetPath);
-    let hierarchy = targetPath.split(/\\|\./g).filter(route => route !== '');
     // フォルダ探索
-    let currentFolder = playListRootInfo.root;
-    for (let route of hierarchy) {
-      let nextFolder = currentFolder.elements.find(elem => elem.name === route);
-      currentFolder = nextFolder;
-    }
-    let folders = [];
-    let files = [];
-    for (let element of currentFolder.elements) {
-      switch (element.type) {
-        case 'folder':
-          folders.push({
-            type: 'folder',
-            name: element.name,
-            physicsName: element.name,
-          });
-          break;
-        case 'playList':
-          files.push({
-            type: 'list',
-            name: element.name,
-            physicsName: element.name,
-          });
-          break;
-      }
-    }
+    let currentFolder = this.getElement(targetPath);
     // フォルダ情報整形
+    let folders = currentFolder.folders.map(elem => ({
+      type: 'folder',
+      name: elem.name,
+      physicsName: elem.physicsName,
+    }));
     return {
-      current: targetPath,
+      current: path.normalize(targetPath),
       parent: path.dirname(targetPath),
       folders: folders,
-      files: files,
+      files: currentFolder.files,
+    };
+  }
+
+  /**
+   * プレイリストフォルダ作成
+   * @param {String} folderPath 新規作成する階層
+   * @param {String} folderName 新規フォルダ名
+   * @returns {PlayListFolderInfo} 新規フォルダの親フォルダ情報
+   */
+  static async createPlayListFolder (folderPath, folderName) {
+    let currentFolder = this.getElement(folderPath);
+    let newFolder = this.createFolderInfo(folderName);
+    currentFolder.elements.push(newFolder);
+    this.writeFolder();
+    return currentFolder;
+  }
+
+  /**
+   * プレイリストフォルダ移動
+   * @param {String} folderPath 移動させるフォルダへのパス
+   * @param {String} toPath 移動先のフォルダへのパス
+   * @returns {PlayListFolderInfo} 移動させたフォルダの移動前のフォルダ情報
+   */
+  static moveFolder (folderPath, toPath) {
+    let currentFolder = this.getElement(folderPath);
+    let toFolder = this.getElement(toPath);
+    toFolder.ele
+  }
+
+  /** プレイリスト移動 */
+
+  /** プレイリストフォルダ削除 */
+
+  /** プレイリスト削除 */
+
+  /**
+   * プレイリストフォルダ情報取得
+   * @param {String} name フォルダ名
+   * @returns {FolderInfo}
+   */
+  static createFolderInfo (name) {
+    let newName = name.replace(/\/\\\./g, '');
+    return {
+      type: 'folder',
+      name: newName,
+      physicsName: newName,
+      elements: [],
     }
   }
 }

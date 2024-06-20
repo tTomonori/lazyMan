@@ -68,8 +68,7 @@ module.exports = class FolderReader {
       type: info.type,
       name: info.name,
       physicsName: info.physicsName,
-      lyrics: info.lyrics,
-      lyricsSize: info.lyricsSize,
+      data: info.data,
     };
     await this.writeFileInfo(fileInfo);
   }
@@ -98,10 +97,15 @@ module.exports = class FolderReader {
   static createFileInfo(physicsName) {
     let pathInfo = path.parse(physicsName);
     return {
-      type: pathInfo.ext,
+      type: 'file',
+      fileType: 'music',
+      ext: pathInfo.ext,
       name: physicsName,
       physicsName: physicsName,
-      lyrics: '',
-    };
+      data: {
+        lyricsSize: null,
+        lyrics : '',
+      },
+    }
   }
 };

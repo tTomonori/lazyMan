@@ -1,108 +1,137 @@
-import FolderDisplay from './FolderDisplay.js';
-
+import ListDisplay from './ListDisplay.js'
 import ct from '../../constTable.js';
 
-const BACK_KEY = '/back';
+/** @enum {String} ディレクトリ要素の種類 */
+const DirectoryElementType = {
+  FOLDER: 'folder',
+  FILE: 'file',
+  UI: 'ui',
+};
+
+/**
+ * @typedef {Object} DirectoryDispInfo ディレクトリ情報
+ * @property {String} name ディレクトリ名
+ * @property {Array<DirectoryDispElement>} elements 要素
+ */
+
+/**
+ * @typedef {Object} DirectoryDispElement ディレクトリ要素
+ * @property {DirectoryElementType} type 種類
+ * @property {String} key 識別子
+ * @property {String} name 表示名
+ * @property {String} icon アイコンファイルのURL
+ * @property {DisplayElementOption} displayOption 表示オプション
+ */
+
+/**
+ * @typedef {Object} DisplayElementOption 要素の表示オプション
+ * @property {String} height 要素のheight
+ */
 
 /**
  * @typedef {Object} DirectoryDisplayOption オプション
+ * @property {function(DirectoryDispElement):jQueryElement} createElement
+ * @property {function(DirectoryDispElement):void} onSelectFolder フォルダ選択時
  * @property {function(DirectoryDispElement):void} onSelectFile ファイル選択時
+ * @property {function(DirectoryDispElement):void} onSelectUi UI選択時
+ * @property {Number} folderClickThreshold フォルダを選択したと判定するクリック回数(0(選択不可), 1, 2)
+ * @property {Number} fileClickThreshold ファイルを選択したと判定するクリック回数(0(選択不可), 1, 2)
+ * @property {Number} uiClickThreshold UIを選択したと判定するクリック回数(0(選択不可), 1, 2)
+ * 
+ * @property {fuction(String,String):void} onDrop
+ * @property {Boolean} isDraggable
+ * @property {String} lineMargin
  */
 
-export default class DirectoryDisplay {
+export default class DirectoryDisplay extends ListDisplay {
+  /** @type {DirectoryElementType} ディレクトリ要素の種類 */
+  static directoryElementType = DirectoryElementType;
   /**
    * @param {jQueryElement} dom 
    * @param {DirectoryDisplayOption} option 
    */
   constructor (dom, option) {
-    this.host = dom;
-    this.option = option;
-    this.folderDisplay = new FolderDisplay(dom, {
-      createElement: null,
-      onSelectFolder: (elem) => { this.open(this.getCurrentPath() + '/' + elem.key); },
-      onSelectFile: (elem) => { this.option.onSelectFile(elem); },
-      onSelectUi: (elem) => {
-        if (elem.key === BACK_KEY) {
-          this.open(this.getCurrentPath() + '/..');
-        }
-      },
-      folderClickThreshold: 1,
-      fileClickThreshold: 1,
-      uiClickThreshold: 1,
-      onDrop: () => {},
-      isDraggable: false,
-      lineMargin: '10px',
+    super(dom, {
+      createElement: option.createElement || ((key) => { return this.createElement(key); }),
+      onClick: (key) => { this.selectElement(key, 1); },
+      onDoubleClick: (key) => { this.selectElement(key, 2); },
+      onDrop: (dragged, dropped) => { this.dropped(dragged, dropped); },
+      isDraggable: option.isDraggable,
+      lineMargin: option.lineMargin,
     });
-    /** @type {import('../../../scripts/type.d.ts').DirectoryInfo} */
-    this.directoryInfo = null;
-  }
-  getCurrentPath () {
-    return this.directoryInfo ? this.directoryInfo.current : '';
-  }
-  isRoot (path) {
-    return ['', '\\', '/', '.'].includes(path);
+    /** @type {DirectoryDisplayOption} */
+    this.directoryDisplayOption = option;
+    /** @type {DirectoryDispInfo} */
+    this.directoryDispInfo = {};
   }
   /**
-   * 指定したパスのフォルダを表示
-   * @param {String} path 
+   * 要素が選択された
+   * @param {String} key 要素の識別子
+   * @param {Number} clickNum クリック回数
    */
-  async open (path) {
-    this.directoryInfo = await this.fetchDirectoryInfo(path);
-    let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
-    this.folderDisplay.open(dispInfo);
-  }
-  /**
-   * サーバからディレクトリ情報を取得
-   * @param {String} path 
-   * @returns {Promise<import('../../../scripts/type.js').DirectoryInfo>}
-   */
-  async fetchDirectoryInfo (path) {
-    return new Promise((res, rej) => {
-      $.ajax({
-        url: './openFolder',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({ path: path }),
-      })
-      .done((/** @type {import('../../../scripts/type.js').DirectoryInfo} */data) => {
-        res(data);
-      });
-    });
-  }
-  /**
-   * ディレクトリ情報を表示用に整形
-   * @param {import('../../../scripts/type.js').DirectoryInfo} data 
-   * @returns {import('./FolderDisplay.js').DirectoryDispInfo}
-   */
-  createDirectoryDispInfo (data) {
-    let back = [];
-    if (!this.isRoot(data.current)) {
-      // 親ディレクトリへ移動ボタン
-      back = [{
-        type: FolderDisplay.directoryElementType.UI,
-        key: BACK_KEY,
-        name: '',
-        icon: ct.path.icon + 'returnArrow.png',
-        displayOption: { height: '20px' },
-      }]
+  selectElement (key, clickNum) {
+    let selectedElement = this.getDirectoryElement(key);
+    switch (selectedElement.type) {
+      case DirectoryElementType.FOLDER:
+        if (this.directoryDisplayOption.folderClickThreshold === clickNum) { this.directoryDisplayOption.onSelectFolder(selectedElement); }
+        break;
+      case DirectoryElementType.FILE:
+        if (this.directoryDisplayOption.fileClickThreshold === clickNum) { this.directoryDisplayOption.onSelectFile(selectedElement); }
+        break;
+      case DirectoryElementType.UI:
+        if (this.directoryDisplayOption.uiClickThreshold === clickNum) { this.directoryDisplayOption.onSelectUi(selectedElement); }
+        break;
     }
-    let folders = data.folders.map(info => ({
-      type: FolderDisplay.directoryElementType.FOLDER,
-      key: info.physicsName,
-      name: info.name,
-      icon: ct.path.icon + 'folder.png',
-    }));
-    let files = data.files.map(info => ({
-      type: FolderDisplay.directoryElementType.FILE,
-      key: info.physicsName,
-      name: info.name,
-      icon: ct.path.icon + 'musicFile.png',
-    }));
+  }
+  /**
+   * ドラッグ&ドロップされた
+   * @param {String} dragged ドラッグされた要素の識別子
+   * @param {String} dropped ドロップされた要素の識別子
+   */
+  dropped (dragged, dropped) {
+    let draggedElement = this.getDirectoryElement(dragged);
+    let droppedElement = this.getDirectoryElement(dropped);
+    this.directoryDisplayOption.onDrop(draggedElement, droppedElement);
+  }
+  /**
+   * 指定した要素を取得
+   * @param {String} key 要素の識別子
+   * @returns {DirectoryDispElement} ディレクトリ要素
+   */
+  getDirectoryElement (key) {
+    return this.directoryDispInfo.elements.find(elem => elem.key === key);
+  }
+  /**
+   * 指定したディレクトリ情報を表示する
+   * @param {DirectoryDispInfo} info 
+   */
+  open (info) {
+    this.directoryDispInfo = info;
+    let keyList = this.directoryDispInfo.elements.map(elem => elem.key);
+    super.updateList(keyList);
+  }
+  /**
+   * 要素の表示要素を生成
+   * @param {String} key 要素の識別子
+   * @param {DisplayElementOption} option 要素の表示オプション
+   * @returns {jQueryElement}
+   */
+  createElement (key, option) {
+    let dirElem = this.getDirectoryElement(key);
+    let opt = Object.assign({}, dirElem.displayOption || {}, option || {});
 
-    return {
-      name: data.current,
-      elements: [...back, ...folders, ...files],
-    };
+    let element = $('<div>');
+    element.css({ height: opt.height || '50px' });
+    // アイコン
+    let img = $('<img>');
+    img.addClass('FolderDisplayIcon');
+    img.prop('src', dirElem.icon);
+    element.append(img);
+    // 表示名
+    let name = $('<div>')
+    name.addClass('FolderDisplayName');
+    name.text(dirElem.name);
+    element.append(name);
+    return element;
   }
 }
