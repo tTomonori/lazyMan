@@ -71,7 +71,7 @@ export default class FolderMode extends ViewPortMode {
    */
   async saveFileInfo (info) {
     $.ajax({
-      url: './saveFile',
+      url: './folder/saveFile',
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',

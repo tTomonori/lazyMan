@@ -6,7 +6,7 @@ export default class Popup {
    * 選択肢表示
    * @param {String} message 
    * @param {Array<String>} choice 
-   * @param {function(String):void} callback 
+   * @param {function(String,function():void):void} callback (<選択したchoice>, <カバーを消す関数>) => { }
    */
   static popupChoice (message, choices, callback) {
     let cover = Cover.getCoverDom();
@@ -14,8 +14,8 @@ export default class Popup {
     popup.content.text(message);
 
     let onSelect = (text) => {
-      callback(text);
       Cover.uncover();
+      callback(text, () => { Cover.uncoverCover(); });
     };
     for (let choice of choices) {
       let button = this.createButton(() => { onSelect(choice); });
@@ -24,7 +24,32 @@ export default class Popup {
     }
     cover.append(popup.popup);
     Cover.cover();
+  }
+  /**
+   * 入力欄付き選択肢表示
+   * @param {String} message 
+   * @param {Array<String>} choice 
+   * @param {function(String,String,function():void):void} callback (<入力値>, <選択したchoice>, <カバーを消す関数>) => { }
+   */
+  static popupInput (message, choices, callback) {
+    let cover = Cover.getCoverDom();
+    let popup = this.createPopup();
+    popup.header.text(message);
+    let input = this.createInput();
+    input.css('fontSize', '20px');
+    popup.content.append(input);
 
+    let onSelect = (text) => {
+      Cover.uncover();
+      callback(input.val(), text, () => { Cover.uncoverCover(); });
+    };
+    for (let choice of choices) {
+      let button = this.createButton(() => { onSelect(choice); });
+      button.dom.text(choice);
+      popup.footer.append(button.dom);
+    }
+    cover.append(popup.popup);
+    Cover.cover();
   }
   /**
    * ポップアップDOM生成
@@ -32,14 +57,17 @@ export default class Popup {
    */
   static createPopup () {
     let popup = $('<div>');
+    let header = $('<div>');
     let content = $('<div>');
     let footer = $('<div>');
+    popup.append(header);
     popup.append(content);
     popup.append(footer);
     popup.addClass('popup');
+    header.addClass('popupHeader');
     content.addClass('popupContent');
     footer.addClass('popupFooter');
-    return { popup, content, footer };
+    return { popup, header, content, footer };
   }
   /**
    * ボタン生成
@@ -53,5 +81,13 @@ export default class Popup {
     })
     button.dom.addClass('popupButton');
     return button;
+  }
+  /** 入力欄生成 */
+  static createInput () {
+    let input = $('<input>');
+    input.addClass(['singleLineInput']);
+    input.prop('type', 'text');
+    input.prop('spellcheck', false);
+    return input;
   }
 }

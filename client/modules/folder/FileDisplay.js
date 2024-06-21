@@ -50,7 +50,7 @@ export default class FileDisplay {
    */
   open (fileName) {
     $.ajax({
-      url: './openFile',
+      url: './folder/openFile',
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',

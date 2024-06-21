@@ -22,12 +22,11 @@ PlayList.json
 ```json
 {
   "root": {
-    "type": "folder",
+    "type": "hierarchy",
     "name": "root",
-    "elements": [
-      { "type": "folder", "name": "", "elements": [] },
-      { "type": "playList", "name": "", "list": [{ "path": "" }] }
-    ]
+    "physicsName": "root",
+    "folders": [],
+    "files": []
   }
 }
 ```

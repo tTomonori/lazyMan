@@ -23,13 +23,6 @@
  */
 
 /**
- * @typedef {Object} FolderInfo
- * @property {'folder'} type 
- * @property {String} name 表示名
- * @property {String} physicsName 物理名
- */
-
-/**
  * @typedef {Object} FileInfo
  * @property {'file'} type 
  * @property {Stirng} fileType 任意の種別

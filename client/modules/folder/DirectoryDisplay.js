@@ -38,13 +38,13 @@ const DirectoryElementType = {
  * @property {Number} fileClickThreshold ファイルを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} uiClickThreshold UIを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * 
- * @property {fuction(String,String):void} onDrop
+ * @property {fuction(DirectoryDispElement,DirectoryDispElement):void} onDrop
  * @property {Boolean} isDraggable
  * @property {String} lineMargin
  */
 
 export default class DirectoryDisplay extends ListDisplay {
-  /** @type {DirectoryElementType} ディレクトリ要素の種類 */
+  /** @enum {String} ディレクトリ要素の種類 */
   static directoryElementType = DirectoryElementType;
   /**
    * @param {jQueryElement} dom 

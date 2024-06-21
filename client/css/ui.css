@@ -53,6 +53,11 @@
   border-radius: 20px;
   padding: 20px;
 }
+.popupHeader {
+  display: flex;
+  justify-content: center;
+  margin-bottom: auto;
+}
 .popupContent {
   display: flex;
   height: 100%;

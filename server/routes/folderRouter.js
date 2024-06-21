@@ -6,21 +6,21 @@ const CommonReader = require('../modules/common/CommonReader');
 setFolderRoot();
 
 /** フォルダ情報取得 */
-router.post('/openFolder', async (req, res) => {
+router.post('/folder/openFolder', async (req, res) => {
   let path = req.body.path;
   let folderInfo = await FolderReader.readFolder(path);
   res.send(folderInfo);
 });
 
 /** ファイル情報取得 */
-router.post('/openFile', async (req, res) => {
+router.post('/folder/openFile', async (req, res) => {
   let name = req.body.name;
   let fileInfo = await FolderReader.readFile(name);
   res.send(fileInfo);
 });
 
 /** ファイル情報保存 */
-router.post('/saveFile', async (req, res) => {
+router.post('/folder/saveFile', async (req, res) => {
   let info = req.body.info;
   await FolderReader.saveFile(info);
   res.send();

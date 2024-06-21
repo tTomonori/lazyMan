@@ -59,7 +59,7 @@ export default class DirectoryExplorer {
   async fetchDirectoryInfo (path) {
     return new Promise((res, rej) => {
       $.ajax({
-        url: './openFolder',
+        url: './folder/openFolder',
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json',

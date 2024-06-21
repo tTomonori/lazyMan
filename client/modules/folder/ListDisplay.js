@@ -55,6 +55,7 @@ export default class ListDisplay {
   }
   /** イベント設定 */
   setEvents () {
+    this.host.addClass('first');
     $(this.host).on('mouseup', `.${ELEMENT_CLASSNAME}`, (e) => {
       let key = $(e.currentTarget).data(ELEMENTKEY_DATANAME);
       this.option.onClick(key);
@@ -63,26 +64,24 @@ export default class ListDisplay {
       let key = $(e.currentTarget).data(ELEMENTKEY_DATANAME);
       this.option.onDoubleClick(key);
     });
-    if (this.option.isDraggable) {
-      let dragElement;
-      $(this.host).on('dragstart', `.${ELEMENT_CLASSNAME}`, (e) => {
-        dragElement = e.currentTarget;
+    let dragElement;
+    $(this.host).on('dragstart', `.${ELEMENT_CLASSNAME}`, (e) => {
+      dragElement = e.currentTarget;
+    });
+    $(this.host).on('dragend', `.${ELEMENT_CLASSNAME}`, (e) => {
+      let x = e.clientX;
+      let y = e.clientY;
+      let belowElems = document.elementsFromPoint(x, y);
+      let dropElement = belowElems.find((elem) => {
+        return $(elem).hasClass(ELEMENT_CLASSNAME);
       });
-      $(this.host).on('dragend', `.${ELEMENT_CLASSNAME}`, (e) => {
-        let x = e.clientX;
-        let y = e.clientY;
-        let belowElems = document.elementsFromPoint(x, y);
-        let dropElement = belowElems.find((elem) => {
-          return $(elem).hasClass(ELEMENT_CLASSNAME);
-        });
-        if (dragElement && dropElement) {
-          let dragKey = $(dragElement).data(ELEMENTKEY_DATANAME);
-          let dropKey = $(dropElement).data(ELEMENTKEY_DATANAME);
-          this.option.onDrop(dragKey, dropKey);
-        }
-        dragElement = null;
-      });
-    }
+      if (dragElement && dropElement) {
+        let dragKey = $(dragElement).data(ELEMENTKEY_DATANAME);
+        let dropKey = $(dropElement).data(ELEMENTKEY_DATANAME);
+        this.option.onDrop(dragKey, dropKey);
+      }
+      dragElement = null;
+    });
   }
   /**
    * 表示更新

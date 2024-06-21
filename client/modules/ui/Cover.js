@@ -14,14 +14,20 @@ export default class Cover {
     coverDom.css('display', 'flex');
     if (callback) { callback() };
   }
-  static uncover (callback) {
+  /**
+   * カバーを消す
+   * @param {function():void} callback 
+   * @param {Boolean} leaveCoverCover trueの場合はカバーのカバーを残す
+   */
+  static uncover (callback, leaveCoverCover) {
     this.coverCover();
     coverDom.css('display', 'none');
     this.reset();
-    this.uncoverCover();
+    if (!leaveCoverCover) {
+      this.uncoverCover();
+    }
     if (callback) { callback() };
   }
-
   static coverCover () {
     coverCoverDom.css('display', '');
   }
