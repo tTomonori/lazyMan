@@ -23,7 +23,7 @@ export default class CommonButton {
     this.dom.css(Object.assign({
       width: typeof this.option.size === 'string' ? this.option.size : this.option.size.width,
       height: typeof this.option.size === 'string' ? this.option.size : this.option.size.height,
-    }, this.style));
+    }, this.option.style));
 
     $(this.dom).on('click', this.option.onClick);
   }

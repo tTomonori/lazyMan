@@ -1,6 +1,16 @@
 import CommonButton from './CommonButton.js';
+import ct from '../../../constTable.js';
+
+/**
+ * @typedef {Object} IconButtonOption
+ * @property {String} icon 画像ファイル名
+ * @extends {import('./CommonButton.js').CommonButtonOption}
+ */
 
 export default class IconButton extends CommonButton {
+  /**
+   * @param {IconButtonOption} option 
+   */
   constructor (option) {
     let thisOption = Object.assign({
       icon: '',
@@ -8,7 +18,7 @@ export default class IconButton extends CommonButton {
     super(thisOption);
     this.dom.addClass('iconButton');
 
-    this.dom.css('background-image', `url(client/image/icon/${this.option.icon}`);
+    this.dom.css('background-image', `url(${ct.path.icon}${this.option.icon}`);
     this.dom.css('background-size', 'contain');
     this.dom.css('background-repeat', 'no-repeat');
   }

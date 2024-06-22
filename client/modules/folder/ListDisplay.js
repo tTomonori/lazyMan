@@ -1,4 +1,5 @@
 const ELEMENT_CLASSNAME = 'ListDisplayElement';
+const HOVEROUT_ELEMENT_CLASS = 'hoveroutListDisplayElement';
 const ELEMENTKEY_DATANAME = 'elementkey';
 const DRAGGABLE_CLASSNAME = 'elementsDraggable';
 window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/css/folder.css">').appendTo('head');
@@ -14,6 +15,7 @@ window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/
  */
 
 export default class ListDisplay {
+  static CONST = { ELEMENT_CLASSNAME, HOVEROUT_ELEMENT_CLASS };
   /**
    * @param {Object} dom 
    * @param {ListDisplayOption} option 
@@ -55,8 +57,7 @@ export default class ListDisplay {
   }
   /** イベント設定 */
   setEvents () {
-    this.host.addClass('first');
-    $(this.host).on('mouseup', `.${ELEMENT_CLASSNAME}`, (e) => {
+    $(this.host).on('click', `.${ELEMENT_CLASSNAME}`, (e) => {
       let key = $(e.currentTarget).data(ELEMENTKEY_DATANAME);
       this.option.onClick(key);
     });
@@ -78,6 +79,7 @@ export default class ListDisplay {
       if (dragElement && dropElement) {
         let dragKey = $(dragElement).data(ELEMENTKEY_DATANAME);
         let dropKey = $(dropElement).data(ELEMENTKEY_DATANAME);
+        if (dragKey === dropKey) { return; }
         this.option.onDrop(dragKey, dropKey);
       }
       dragElement = null;

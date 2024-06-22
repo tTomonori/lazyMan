@@ -9,6 +9,7 @@
 }
 .ListDisplayElement {
   display: flex;
+  position: relative;
   align-items: center;
   color: white;
   background-color: black;
@@ -17,10 +18,11 @@
   padding: 5px;
   transition: filter 0.3s, background-color 0.1s;
 }
-.ListDisplayElement:hover, .ListDisplayElement:active {
+.ListDisplayElement:hover:not(:has(.hoveroutListDisplayElement:hover)),
+.ListDisplayElement:active:not(:has(.hoveroutListDisplayElement:hover)) {
   filter: invert(100%);
 }
-.ListDisplayElement:active {
+.ListDisplayElement:active:not(:has(.hoveroutListDisplayElement:hover)) {
   background-color: rgb(30, 30, 30);
 }
 
@@ -61,4 +63,10 @@
 
 .FileDisplayMiniInput {
   display: inline-block;
+}
+
+/** DirectoryDisplay */
+
+.directoryDisplayElementMenu:hover {
+  filter: invert(100%);
 }

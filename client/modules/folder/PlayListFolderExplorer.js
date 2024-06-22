@@ -8,6 +8,7 @@ const NEW_KEY = '/new';
 /**
  * @typedef {Object} PlayListFolderExplorerOption
  * @property {function(import('./DirectoryDisplay.js').DirectoryDispElement):void} onPlayListSelected
+ * @property {function(key):void} onMenuClick
  * @property {function(import('./DirectoryDisplay.js').DirectoryDispElement,import('./DirectoryDisplay.js').DirectoryDispElement):void} onDrop
  * @property {Boolean} isEditable
  */
@@ -32,9 +33,11 @@ export default class PlayListFolderExplorer {
           this.onSelectPlus();
         }
       },
+      onMenuClick: (elem) => { this.onMenuClick(elem); },
       folderClickThreshold: 1,
       fileClickThreshold: 1,
       uiClickThreshold: 1,
+      isMenuDisplayed: this.option.isEditable,
       onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
       isDraggable: option.isEditable,
       lineMargin: '10px',
@@ -44,7 +47,10 @@ export default class PlayListFolderExplorer {
   }
   setEditMode (editMode) {
     this.option.isEditable = editMode === ct.editMode.EDITABLE;
-    this.directoryDisplay.setOption({ isDraggable: this.option.isEditable });
+    this.directoryDisplay.setOption({
+      isDraggable: this.option.isEditable,
+      isMenuDisplayed: this.option.isEditable,
+    });
     let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
     this.directoryDisplay.open(dispInfo);
   }
@@ -143,6 +149,13 @@ export default class PlayListFolderExplorer {
         this.movePlayList(dragged.key, '..', () => {});
         break;
     }
+  }
+  /**
+   * メニューボタンがクリックされた
+   * @param {import('./DirectoryDisplay.js').DirectoryDispElement} elem 
+   */
+  onMenuClick (elem) {
+    console.log('menu');
   }
   /**
    * ディレクトリ情報を表示用に整形

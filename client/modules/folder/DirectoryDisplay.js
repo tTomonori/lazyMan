@@ -1,4 +1,5 @@
 import ListDisplay from './ListDisplay.js'
+import IconButton from '../component/button/IconButton.js';
 import ct from '../../constTable.js';
 
 /** @enum {String} ディレクトリ要素の種類 */
@@ -7,6 +8,8 @@ const DirectoryElementType = {
   FILE: 'file',
   UI: 'ui',
 };
+
+const ELEMENT_MENU_CLASS = 'directoryDisplayElementMenu';
 
 /**
  * @typedef {Object} DirectoryDispInfo ディレクトリ情報
@@ -34,9 +37,11 @@ const DirectoryElementType = {
  * @property {function(DirectoryDispElement):void} onSelectFolder フォルダ選択時
  * @property {function(DirectoryDispElement):void} onSelectFile ファイル選択時
  * @property {function(DirectoryDispElement):void} onSelectUi UI選択時
+ * @property {function(DirectoryDispElement):void} onMenuClick メニューアイコンクリック時
  * @property {Number} folderClickThreshold フォルダを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} fileClickThreshold ファイルを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} uiClickThreshold UIを選択したと判定するクリック回数(0(選択不可), 1, 2)
+ * @property {Boolean} isMenuDisplayed メニューアイコンを表示するか
  * 
  * @property {fuction(DirectoryDispElement,DirectoryDispElement):void} onDrop
  * @property {Boolean} isDraggable
@@ -55,7 +60,9 @@ export default class DirectoryDisplay extends ListDisplay {
       createElement: option.createElement || ((key) => { return this.createElement(key); }),
       onClick: (key) => { this.selectElement(key, 1); },
       onDoubleClick: (key) => { this.selectElement(key, 2); },
+      onMenuClick: option.onMenuClick || ((elem) => {}),
       onDrop: (dragged, dropped) => { this.dropped(dragged, dropped); },
+      isMenuDisplayed: option.isMenuDisplayed,
       isDraggable: option.isDraggable,
       lineMargin: option.lineMargin,
     });
@@ -63,6 +70,19 @@ export default class DirectoryDisplay extends ListDisplay {
     this.directoryDisplayOption = option;
     /** @type {DirectoryDispInfo} */
     this.directoryDispInfo = {};
+  }
+  /**
+   * optionを変更
+   * @param {DirectoryDisplayOption} option 
+   */
+  setOption (option) {
+    Object.assign(this.directoryDisplayOption, option);
+    super.setOption(option);
+  }
+  /** optionの設定を反映する */
+  applyOption () {
+    super.applyOption();
+    $(this.host).find('.' + ELEMENT_MENU_CLASS).css('display', this.option.isMenuDisplayed ? 'block' : 'none')
   }
   /**
    * 要素が選択された
@@ -132,6 +152,27 @@ export default class DirectoryDisplay extends ListDisplay {
     name.addClass('FolderDisplayName');
     name.text(dirElem.name);
     element.append(name);
+    // メニュー
+    if (dirElem.type !== DirectoryElementType.UI) {
+      let menu = new IconButton({
+        icon: 'menu.png',
+        size: { width: '', height: '70%' },
+        style: {
+          position: 'absolute',
+          right: '10px',
+          display: this.option.isMenuDisplayed ? 'block' : 'none',
+          'aspect-ratio': 1,
+        }
+      });
+      menu.dom.addClass(ELEMENT_MENU_CLASS);
+      menu.dom.addClass(ListDisplay.CONST.HOVEROUT_ELEMENT_CLASS);
+      $(menu.dom).on('click', (e) => {
+        this.option.onMenuClick(dirElem);
+        // 親要素のイベント発火を止める
+        e.stopPropagation();
+      });
+      element.append(menu.dom);
+    }
     return element;
   }
 }
