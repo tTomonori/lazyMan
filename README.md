@@ -27,6 +27,7 @@ PlayList.json
     "physicsName": "root",
     "folders": [],
     "files": []
-  }
+  },
+  "backup": []
 }
 ```

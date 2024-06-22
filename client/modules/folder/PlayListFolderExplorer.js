@@ -158,13 +158,22 @@ export default class PlayListFolderExplorer {
     Popup.popupChoice('メニュー', ['削除', '名称変更', '閉じる'], (key, uncover) => {
       switch (key) {
         case '削除':
-          uncover();
+          Popup.popupChoice('本当に削除する？', ['削除', 'キャンセル'], (key, uncover) => {
+            switch (key) {
+              case '削除':
+                this.deleteElement(elem.name, () => { uncover(); });
+                break;
+              case 'キャンセル':
+                uncover();
+                break;
+            }
+          });
           break;
         case '名称変更':
-          Popup.popupInput('名称変更', ['変更', 'キャンセル'], (key, uncover) => {
+          Popup.popupInput('名称変更', ['変更', 'キャンセル'], (input, key, uncover) => {
             switch (key) {
               case '変更':
-                uncover();
+                this.renameElement(elem.name, input, () => { uncover(); });
                 break;
               case 'キャンセル':
                 uncover();
@@ -224,6 +233,9 @@ export default class PlayListFolderExplorer {
       elements: [...head, ...folders, ...files, ...tail],
     };
   }
+
+  /** ------------------------------------------------------------------------------------------ */
+  // サーバ接続
   /**
    * 新規フォルダ作成
    * @param {String} name 新規フォルダ名
@@ -280,7 +292,7 @@ export default class PlayListFolderExplorer {
     });
   }
   /**
-   * フォルダの並び替え
+   * 要素の並び替え
    * @param {String} target 並び変えるフォルダの相対パス
    * @param {String} to 移動先の次のフォルダの相対パス
    * @param {function():void} callback 
@@ -292,6 +304,43 @@ export default class PlayListFolderExplorer {
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify({ targetPath: this.directoryInfo.current, targetName: target, toName: to }),
+    })
+    .done((/** @type {DirectoryInfo} */data) => {
+      this.displayInfo(data);
+      callback();
+    });
+  }
+  /**
+   * 要素の名称変更
+   * @param {String} target 名称変更する要素の相対パス
+   * @param {String} target 変更後の名称
+   * @param {function():void} callback 
+   */
+  renameElement (target, newName, callback) {
+    $.ajax({
+      url: './playList/renameElement',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target, newName: newName }),
+    })
+    .done((/** @type {DirectoryInfo} */data) => {
+      this.displayInfo(data);
+      callback();
+    });
+  }
+  /**
+   * 要素の削除
+   * @param {String} target 削除する要素の相対パス
+   * @param {function():void} callback 
+   */
+  deleteElement (target, callback) {
+    $.ajax({
+      url: './playList/deleteElement',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target }),
     })
     .done((/** @type {DirectoryInfo} */data) => {
       this.displayInfo(data);

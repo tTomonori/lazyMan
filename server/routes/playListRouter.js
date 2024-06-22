@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const path = require('path');
 const router = express.Router();
 
 const PlayListReader = require('../modules/PlayListReader');
@@ -16,7 +17,8 @@ router.post('/playList/openPlayListFolder', async (req, res) => {
 router.post('/playList/createPlayListFolder', async (req, res) => {
   let path = req.body.path;
   let name = req.body.name;
-  let folderInfo = await PlayListReader.createPlayListFolder(path, name);
+  await PlayListReader.createPlayListFolder(path, name);
+  let folderInfo = await PlayListReader.readPlayListFolder(path);
   res.send(folderInfo);
 });
 
@@ -24,7 +26,8 @@ router.post('/playList/createPlayListFolder', async (req, res) => {
 router.post('/playList/createPlayList', async (req, res) => {
   let path = req.body.path;
   let name = req.body.name;
-  let folderInfo = await PlayListReader.createPlayList(path, name);
+  await PlayListReader.createPlayList(path, name);
+  let folderInfo = await PlayListReader.readPlayListFolder(path);
   res.send(folderInfo);
 });
 
@@ -32,7 +35,8 @@ router.post('/playList/createPlayList', async (req, res) => {
 router.post('/playList/moveElement', async (req, res) => {
   let targetPath = req.body.targetPath;
   let toPath = req.body.toPath;
-  let folderInfo = await PlayListReader.moveElement(targetPath, toPath);
+  await PlayListReader.moveElement(targetPath, toPath);
+  let folderInfo = await PlayListReader.readPlayListFolder(path.dirname(targetPath));
   res.send(folderInfo);
 });
 
@@ -41,17 +45,28 @@ router.post('/playList/arrangeElement', async (req, res) => {
   let targetPath = req.body.targetPath;
   let targetName = req.body.targetName;
   let toName = req.body.toName;
-  let folderInfo = await PlayListReader.arrangeElement(targetPath, targetName, toName);
+  await PlayListReader.arrangeElement(targetPath, targetName, toName);
+  let folderInfo = await PlayListReader.readPlayListFolder(targetPath);
   res.send(folderInfo);
 });
 
-/** プレイリストフォルダ名称変更 */
+/** 要素名称変更 */
+router.post('/playList/renameElement', async (req, res) => {
+  let targetPath = req.body.targetPath;
+  let newName = req.body.newName;
+  await PlayListReader.renameElement(targetPath, newName);
+  let folderInfo = await PlayListReader.readPlayListFolder(path.dirname(targetPath));
+  res.send(folderInfo);
+});
 
-/** プレイリストフォルダ削除 */
+/** 要素削除 */
+router.post('/playList/deleteElement', async (req, res) => {
+  let targetPath = req.body.targetPath;
+  await PlayListReader.deleteElement(targetPath);
+  let folderInfo = await PlayListReader.readPlayListFolder(path.dirname(targetPath));
+  res.send(folderInfo);
+});
 
-/** プレイリスト削除 */
-
-/** プレイリスト情報取得 */
 router.post('/playList/openPlayList', async (req, res) => {
 });
 

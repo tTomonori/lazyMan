@@ -1,3 +1,4 @@
+require('../../src/@types/type');
 const fs = require('fs');
 const path = require('path');
 
@@ -10,6 +11,7 @@ const DirectoryElementType = {
 const CommonReader = require('../modules/common/CommonReader');
 
 const PLAYLIST_FILE_PATH = __dirname + '/../../_data/PlayList.json';
+const MAX_BACKUP_NUM = 10;
 
 /** @type {Object} */
 let playListInfo;
@@ -17,6 +19,8 @@ let playListInfo;
 module.exports = class PlayListReader {
   /** @type {HierarchyInfo} */
   static get playListRootInfo () { return playListInfo.root; }
+  /** @type {Array<Object>} */
+  static get backupInfo () { return playListInfo.backup; }
   /**
    * 指定したプレイリストフォルダ情報を取得
    * @param {String} targetPath 
@@ -36,13 +40,15 @@ module.exports = class PlayListReader {
    * @param {String} toPath 移動先のフォルダへのパス
    * @returns {PlayListFolderInfo} 移動させた要素の移動前の親フォルダ情報
    */
-  static moveElement (targetPath, toPath) {
+  static async moveElement (targetPath, toPath) {
     let target = this.getElement(targetPath);
     switch (target.type) {
       case DirectoryElementType.FOLDER:
-        return this.moveFolder(targetPath, toPath);
+        await this.moveFolder(targetPath, toPath);
+        break;
       case DirectoryElementType.FILE:
-        return this.movePlayList(targetPath, toPath);
+        await this.movePlayList(targetPath, toPath);
+        break;
     }
   }
 
@@ -53,13 +59,15 @@ module.exports = class PlayListReader {
    * @param {String} toPhysics 並び替え先の次の位置の要素名
    * @returns {PlayListFolderInfo} 並び替えた要素の親フォルダ情報
    */
-  static arrangeElement (targetHierarchyPath, targetPhysics, toPhysics) {
+  static async arrangeElement (targetHierarchyPath, targetPhysics, toPhysics) {
     let target = this.getElement(targetHierarchyPath + '/' + targetPhysics);
     switch (target.type) {
       case DirectoryElementType.FOLDER:
-        return this.arrangeFolder(targetHierarchyPath, targetPhysics, toPhysics);
+        await this.arrangeFolder(targetHierarchyPath, targetPhysics, toPhysics);
+        break;
       case DirectoryElementType.FILE:
-        return this.arrangePlayList(targetHierarchyPath, targetPhysics, toPhysics);
+        await this.arrangePlayList(targetHierarchyPath, targetPhysics, toPhysics);
+        break;
     }
   }
 
@@ -69,8 +77,16 @@ module.exports = class PlayListReader {
    * @param {String} newName 新しい名称
    * @returns {PlayListFolderInfo} 名称を変更した要素の親フォルダ情報
    */
-  static renameElement (targetPath, newName) {
-
+  static async renameElement (targetPath, newName) {
+    let target = this.getElement(targetPath);
+    switch (target.type) {
+      case DirectoryElementType.FOLDER:
+        await this.renameFolder(targetPath, newName);
+        break;
+      case DirectoryElementType.FILE:
+        await this.renamePlayList(targetPath, newName);
+        break;
+    }
   }
 
   /**
@@ -78,8 +94,16 @@ module.exports = class PlayListReader {
    * @param {String} targetPath 削除する要素名
    * @returns {PlayListFolderInfo} 削除した要素の親フォルダ情報
    */
-  static deleteElement (targetPath) {
-
+  static async deleteElement (targetPath) {
+    let target = this.getElement(targetPath);
+    switch (target.type) {
+      case DirectoryElementType.FOLDER:
+        await this.deleteFolder(targetPath);
+        break;
+      case DirectoryElementType.FILE:
+        await this.deletePlayList(targetPath);
+        break;
+    }
   }
 
   /** ------------------------------------------------------------------------------------------ */
@@ -88,7 +112,6 @@ module.exports = class PlayListReader {
    * フォルダ作成
    * @param {String} folderPath 新規作成する階層
    * @param {String} folderName 新規フォルダ名
-   * @returns {PlayListFolderInfo} 新規フォルダの親フォルダ情報
    */
   static async createPlayListFolder (folderPath, folderName) {
     let currentFolder = this.getHierarchy(folderPath);
@@ -99,14 +122,12 @@ module.exports = class PlayListReader {
     let newFolder = this.createHierarchyInfo(folderName);
     currentFolder.folders.push(newFolder);
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(path.normalize(folderPath), currentFolder);
   }
 
   /**
    * リスト作成
    * @param {String} folderPath 新規作成する階層
    * @param {String} playListName 新規プレイリスト名
-   * @returns {PlayListFolderInfo} 新規プレイリストの親フォルダ情報
    */
   static async createPlayList (folderPath, playListName) {
     let currentFolder = this.getHierarchy(folderPath);
@@ -117,14 +138,12 @@ module.exports = class PlayListReader {
     let newFolder = this.createFileInfo(playListName);
     currentFolder.files.push(newFolder);
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(path.normalize(folderPath), currentFolder);
   }
 
   /**
    * フォルダ移動
    * @param {String} folderPath 移動させるフォルダへのパス
    * @param {String} toPath 移動先のフォルダへのパス
-   * @returns {PlayListFolderInfo} 移動させたフォルダの移動前の親フォルダ情報
    */
   static async moveFolder (folderPath, toPath) {
     let currentNormal = path.normalize(folderPath);
@@ -146,14 +165,12 @@ module.exports = class PlayListReader {
     // 元の親から削除
     parentFolder.folders = parentFolder.folders.filter(elem => elem.name !== currentFolder.name);
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(path.dirname(folderPath), parentFolder);
   }
 
   /**
    * リスト移動
    * @param {String} playListPath 移動させるプレイリストへのパス
    * @param {String} toPath 移動先のフォルダへのパス
-   * @returns {PlayListFolderInfo} 移動させたプレイリストの移動前の親フォルダ情報
    */
   static async movePlayList (playListPath, toPath) {
     let parentNormal = path.dirname(playListPath);
@@ -171,7 +188,6 @@ module.exports = class PlayListReader {
     // 元の親から削除
     parentFolder.files = parentFolder.files.filter(elem => elem.name !== playListName);
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(path.dirname(playListPath), parentFolder);
   }
 
   /**
@@ -179,7 +195,6 @@ module.exports = class PlayListReader {
    * @param {String} targetPath 並び変えるフォルダの親へのパス
    * @param {String} targetName 並び変えるフォルダ名
    * @param {String} toName 並び替え先の位置にあるフォルダ名(''の場合は末尾へ移動)
-   * @returns {PlayListFolderInfo} 並び替えたプレイリストフォルダの親フォルダ情報
    */
   static async arrangeFolder (targetPath, targetName, toName) {
     let parentFolder = this.getHierarchy(targetPath);
@@ -193,7 +208,6 @@ module.exports = class PlayListReader {
     parentFolder.folders.splice(toIndex, 0, target);
 
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(targetPath, parentFolder);
   }
 
   /**
@@ -201,7 +215,6 @@ module.exports = class PlayListReader {
    * @param {String} targetPath 並び変えるフォルダの親へのパス
    * @param {String} targetName 並び変えるフォルダ名
    * @param {String} toName 並び替え先の次の位置のフォルダ名(''の場合は末尾へ移動)
-   * @returns {PlayListFolderInfo} 並び替えたプレイリストの親フォルダ情報
    */
   static async arrangePlayList (targetPath, targetName, toName) {
     let parentFolder = this.getHierarchy(targetPath);
@@ -215,17 +228,74 @@ module.exports = class PlayListReader {
     parentFolder.files.splice(toIndex, 0, target);
 
     await this.writeFolder();
-    return this.createDirectoryInfoFromHierarchy(targetPath, parentFolder);
   }
 
-  /** フォルダ名称変更 */
+  /**
+   * フォルダ名称変更
+   * @param {String} targetPath 名称変更するフォルダへのパス
+   * @param {String} newName 変更後の名称
+   */
+  static async renameFolder (targetPath, newName) {
+    let targetFolder = this.getHierarchy(targetPath);
+    // 名称が重複したらエラー
+    if (this.getElementFromHierarchy(newName, targetFolder)) {
+      return null;
+    }
+    targetFolder.name = newName;
+    targetFolder.physicsName = newName;
 
-  /** リスト名称変更 */
+    await this.writeFolder();
+  }
 
-  /** フォルダ削除 */
+  /**
+   * リスト名称変更
+   * @param {String} targetPath 名称変更するリストへのパス
+   * @param {String} newName 変更後の名称
+   */
+  static async renamePlayList (targetPath, newName) {
+    let parentFolder = this.getHierarchy(path.dirname(targetPath));
+    // 名称が重複したらエラー
+    if (this.getElementFromHierarchy(newName, parentFolder)) {
+      return null;
+    }
+    let target = this.getDirectoryElement(targetPath);
+    target.name = newName;
+    target.physicsName = newName;
 
-  /** リスト削除 */
+    await this.writeFolder();
+  }
 
+  /**
+   * フォルダ削除
+   * @param {String} targetPath 削除するフォルダへのパス
+   */
+  static async deleteFolder (targetPath) {
+    let parentFolder = this.getHierarchy(path.dirname(targetPath));
+    let physicsName = path.basename(targetPath);
+    // 削除対象のインデックス
+    let targetIndex = parentFolder.folders.findIndex(elem => elem.physicsName === physicsName);
+    // 削除
+    let target = parentFolder.folders.splice(targetIndex, 1)[0];
+
+    this.backupObject(target);
+    await this.writeFolder();
+  }
+
+  /**
+   * リスト削除
+   * @param {String} targetPath 削除するリストへのパス
+   */
+  static async deletePlayList (targetPath) {
+    let parentFolder = this.getHierarchy(path.dirname(targetPath));
+    let physicsName = path.basename(targetPath);
+    // 削除対象のインデックス
+    let targetIndex = parentFolder.files.findIndex(elem => elem.physicsName === physicsName);
+    // 削除
+    let target = parentFolder.files.splice(targetIndex, 1)[0];
+
+    this.backupObject(target);
+    await this.writeFolder();
+  }
 
   /** ------------------------------------------------------------------------------------------ */
 
@@ -349,5 +419,15 @@ module.exports = class PlayListReader {
       folders: hierarchy.folders.map(folder => ({ type: folder.type, name: folder.name, physicsName: folder.physicsName })),
       files: hierarchy.files,
     };
+  }
+
+  /**
+   * 誤操作のリカバリ用にデータをバックアップ
+   * @param {Object} obj バックアップするデータ
+   */
+  static backupObject (obj) {
+    let backup = this.backupInfo;
+    backup.unshift(obj);
+    backup.splice(MAX_BACKUP_NUM);
   }
 }
