@@ -54,6 +54,7 @@ export default class Popup {
     }
     cover.append(popup.popup);
     Cover.cover();
+    input.focus();
   }
   /**
    * ポップアップDOM生成

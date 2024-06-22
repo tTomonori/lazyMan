@@ -125,10 +125,10 @@ export default class PlayListFolderExplorer {
         Popup.popupChoice(`${dragged.name} → ${dropped.name}`, ['並び替え', '移動', 'キャンセル'], (key, uncover) => {
           switch (key) {
             case '並び替え':
-              this.arrangeFolder(dragged.key, dropped.key, () => { uncover() });
+              this.arrangeElement(dragged.key, dropped.key, () => { uncover() });
               break;
             case '移動':
-              this.moveFolder(dragged.key, dropped.key, () => { uncover(); });
+              this.arrangeElement(dragged.key, dropped.key, () => { uncover(); });
               break;
             case 'キャンセル':
               uncover();
@@ -137,16 +137,16 @@ export default class PlayListFolderExplorer {
         });
         break;
       case `${DirectoryDisplay.directoryElementType.FOLDER}→${BACK_KEY}`:
-        this.moveFolder(dragged.key, '..', () => {});
+        this.moveElement(dragged.key, '..', () => {});
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${DirectoryDisplay.directoryElementType.FOLDER}`:
-        this.movePlayList(dragged.key, dropped.key, () => {});
+        this.moveElement(dragged.key, dropped.key, () => {});
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${DirectoryDisplay.directoryElementType.FILE}`:
-        this.arrangePlayList(dragged.key, dropped.key, () => {});
+        this.arrangeElement(dragged.key, dropped.key, () => {});
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${BACK_KEY}`:
-        this.movePlayList(dragged.key, '..', () => {});
+        this.moveElement(dragged.key, '..', () => {});
         break;
     }
   }
@@ -261,37 +261,18 @@ export default class PlayListFolderExplorer {
     });
   }
   /**
-   * フォルダを移動する
+   * 要素を移動する
    * @param {String} target 移動するフォルダの相対パス
    * @param {String} to 移動先のフォルダの相対パス
    * @param {function():void} callback 
    */
-  moveFolder (target, to, callback) {
+  moveElement (target, to, callback) {
     $.ajax({
-      url: './playList/movePlayListFolder',
+      url: './playList/moveElement',
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ folderPath: this.directoryInfo.current + '/' + target, toPath: this.directoryInfo.current + '/' + to }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * プレイリストを移動する
-   * @param {String} target 移動するプレイリストの相対パス
-   * @param {String} to 移動先のフォルダの相対パス
-   * @param {function():void} callback 
-   */
-  movePlayList (target, to, callback) {
-    $.ajax({
-      url: './playList/movePlayList',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ playListPath: this.directoryInfo.current + '/' + target, toPath: this.directoryInfo.current + '/' + to }),
+      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target, toPath: this.directoryInfo.current + '/' + to }),
     })
     .done((/** @type {DirectoryInfo} */data) => {
       this.displayInfo(data);
@@ -304,32 +285,13 @@ export default class PlayListFolderExplorer {
    * @param {String} to 移動先の次のフォルダの相対パス
    * @param {function():void} callback 
    */
-  arrangeFolder (target, to, callback) {
+  arrangeElement (target, to, callback) {
     $.ajax({
-      url: './playList/arrangeFolder',
+      url: './playList/arrangeElement',
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current, targetName: target, nextName: to }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * プレイリストの並び替え
-   * @param {String} target 並び変えるプレイリストの相対パス
-   * @param {String} to 移動先の次のプレイリストの相対パス
-   * @param {function():void} callback 
-   */
-  arrangePlayList (target, to, callback) {
-    $.ajax({
-      url: './playList/arrangePlayList',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current, targetName: target, nextName: to }),
+      data: JSON.stringify({ targetPath: this.directoryInfo.current, targetName: target, toName: to }),
     })
     .done((/** @type {DirectoryInfo} */data) => {
       this.displayInfo(data);

@@ -28,37 +28,20 @@ router.post('/playList/createPlayList', async (req, res) => {
   res.send(folderInfo);
 });
 
-/** プレイリストフォルダ移動 */
-router.post('/playList/movePlayListFolder', async (req, res) => {
-  let folderPath = req.body.folderPath;
+/** 要素移動 */
+router.post('/playList/moveElement', async (req, res) => {
+  let targetPath = req.body.targetPath;
   let toPath = req.body.toPath;
-  let folderInfo = await PlayListReader.moveFolder(folderPath, toPath);
+  let folderInfo = await PlayListReader.moveElement(targetPath, toPath);
   res.send(folderInfo);
 });
 
-/** プレイリスト移動 */
-router.post('/playList/movePlayList', async (req, res) => {
-  let playListPath = req.body.playListPath;
-  let toPath = req.body.toPath;
-  let folderInfo = await PlayListReader.movePlayList(playListPath, toPath);
-  res.send(folderInfo);
-});
-
-/** プレイリストフォルダ並び替え */
-router.post('/playList/arrangeFolder', async (req, res) => {
+/** 要素並び替え */
+router.post('/playList/arrangeElement', async (req, res) => {
   let targetPath = req.body.targetPath;
   let targetName = req.body.targetName;
-  let nextName = req.body.nextName;
-  let folderInfo = await PlayListReader.arrangeFolder(targetPath, targetName, nextName);
-  res.send(folderInfo);
-});
-
-/** プレイリスト並び替え */
-router.post('/playList/arrangePlayList', async (req, res) => {
-  let targetPath = req.body.targetPath;
-  let targetName = req.body.targetName;
-  let nextName = req.body.nextName;
-  let folderInfo = await PlayListReader.arrangePlayList(targetPath, targetName, nextName);
+  let toName = req.body.toName;
+  let folderInfo = await PlayListReader.arrangeElement(targetPath, targetName, toName);
   res.send(folderInfo);
 });
 
