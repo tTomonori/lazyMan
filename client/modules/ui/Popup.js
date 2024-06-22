@@ -9,6 +9,7 @@ export default class Popup {
    * @param {function(String,function():void):void} callback (<選択したchoice>, <カバーを消す関数>) => { }
    */
   static popupChoice (message, choices, callback) {
+    Cover.reset();
     let cover = Cover.getCoverDom();
     let popup = this.createPopup();
     popup.content.text(message);
@@ -30,12 +31,15 @@ export default class Popup {
    * @param {String} message 
    * @param {Array<String>} choice 
    * @param {function(String,String,function():void):void} callback (<入力値>, <選択したchoice>, <カバーを消す関数>) => { }
+   * @param {Object} { text: <String> }
    */
-  static popupInput (message, choices, callback) {
+  static popupInput (message, choices, callback, option = {}) {
+    Cover.reset();
     let cover = Cover.getCoverDom();
     let popup = this.createPopup();
     popup.header.text(message);
     let input = this.createInput();
+    input.val(option.text ? option.text : '');
     input.css('fontSize', '20px');
     popup.content.append(input);
 

@@ -155,7 +155,28 @@ export default class PlayListFolderExplorer {
    * @param {import('./DirectoryDisplay.js').DirectoryDispElement} elem 
    */
   onMenuClick (elem) {
-    console.log('menu');
+    Popup.popupChoice('メニュー', ['削除', '名称変更', '閉じる'], (key, uncover) => {
+      switch (key) {
+        case '削除':
+          uncover();
+          break;
+        case '名称変更':
+          Popup.popupInput('名称変更', ['変更', 'キャンセル'], (key, uncover) => {
+            switch (key) {
+              case '変更':
+                uncover();
+                break;
+              case 'キャンセル':
+                uncover();
+                break;
+            }
+          }, { text: elem.name });
+          break;
+        case '閉じる':
+          uncover();
+          break;
+      }
+    });
   }
   /**
    * ディレクトリ情報を表示用に整形
