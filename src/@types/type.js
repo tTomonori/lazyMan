@@ -20,6 +20,7 @@
  * @property {String} type
  * @property {String} name 表示名
  * @property {String} physicsName 物理名
+ * @property {Object} data
  */
 
 /**

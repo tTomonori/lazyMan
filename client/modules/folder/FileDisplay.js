@@ -1,8 +1,8 @@
 import IconButton from '../component/button/IconButton.js';
+import Popup from '../ui/Popup.js';
 
 /**
  * @typedef {Object} FileDisplayOption
- * @property {function():void} onRegist
  * @property {function():void} onBack
  * @property {Boolean} isEditable
  */
@@ -16,7 +16,6 @@ export default class FileDisplay {
     this.host = dom;
     /** @type {FileDisplayOption} */
     this.option = Object.assign({
-      onRegist: () => {},
       onBack: () => {},
       isEditable: true,
     }, option);
@@ -80,7 +79,7 @@ export default class FileDisplay {
       right: `calc(${this.host.css('paddingRight')} + ${buttonSize} + 20px)`,
     });
     this.host.append(saveButton.dom);
-    saveButton.dom.on('mouseup', () => { this.option.onRegist(); })
+    saveButton.dom.on('mouseup', () => { this.onRegist(); })
 
     let labelWidth = '60px';
     let miniInputWidth = '32px';
@@ -163,5 +162,36 @@ export default class FileDisplay {
         lyricsSize: this.lyricsSizeArea.val(),
       },
     };
+  }
+  async onRegist () {
+    Popup.popupChoice('保存しますか？', ['保存', 'キャンセル'], (key, uncover) => {
+      switch (key) {
+        case '保存':
+          let info = this.getEditedFilInfo();
+          this.saveFileInfo(info, () => {
+            Popup.popupAlert('保存しました。');
+          });
+          break;
+        case 'キャンセル':
+          uncover();
+          break;
+      }
+    })
+  }
+  /**
+   * ファイル情報を保存
+   * @param {import('../../scripts/type.js').FileInfo} info 
+   */
+  async saveFileInfo (info, callback) {
+    $.ajax({
+      url: './folder/saveFile',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ info: info }),
+    })
+    .done((data) => {
+      callback(data);
+    });
   }
 }

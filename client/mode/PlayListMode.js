@@ -10,7 +10,10 @@ export default class PlayListMode extends ViewPortMode {
   constructor (dom) {
     super(dom);
     this.viewPort = dom;
+    this.currentPath = '';
+    /** @type {PlayListFolderExplorer} */
     this.playListFolderExplorer = null;
+    /** @type {PlayListDisplay} */
     this.playListDisplay = null;
     this.viewPort = super.createViewPort();
     // プレイリスト一覧を開く
@@ -20,15 +23,26 @@ export default class PlayListMode extends ViewPortMode {
     if (!this.playListFolderExplorer) {
       this.resetPort();
       this.playListFolderExplorer = new PlayListFolderExplorer(this.viewPort, {
-        onPlayListSelected: (elem) => { Popup.popupChoice('test', ['1', '2'], () => { console.log('ok'); }); },
-        onDrop: (dragged, dropped) => {},
+        onPlayListSelected: (listPath) => {
+          this.currentPath = this.playListFolderExplorer.getCurrentPath();
+          this.openPlayList(listPath);
+        },
         isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
       });
     }
+    this.currentPath = path;
     this.playListFolderExplorer.open(path);
   }
-  openPlayList (listName) {
-
+  openPlayList (listPath) {
+    if (!this.playListDisplay) {
+      this.resetPort();
+      this.playListDisplay = new PlayListDisplay(this.viewPort, {
+        onBack: () => {
+          this.openListFolder(this.currentPath);
+        },
+      });
+    }
+    this.playListDisplay.open(listPath);
   }
   resetPort () {
     this.viewPort.remove();

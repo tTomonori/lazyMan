@@ -25,6 +25,7 @@ export default class FolderMode extends ViewPortMode {
       this.resetPort();
       this.directoryExplorer = new DirectoryExplorer(this.viewPort, {
         onSelectFile: (info) => {
+          this.currentPath = this.directoryExplorer.getCurrentPath();
           this.openFile(info.key);
         },
       });
@@ -40,10 +41,6 @@ export default class FolderMode extends ViewPortMode {
     if (!this.fileDisplay) {
       this.resetPort();
       this.fileDisplay = new FileDisplay(this.viewPort, {
-        onRegist: () => {
-          let info = this.fileDisplay.getEditedFilInfo();
-          this.saveFileInfo(info);
-        },
         onBack: () => {
           this.openFolder(this.currentPath);
         },
@@ -64,22 +61,6 @@ export default class FolderMode extends ViewPortMode {
         isEditable: editMode === ct.editMode.EDITABLE,
       });
     }
-  }
-  /**
-   * ファイル情報を保存
-   * @param {import('../../scripts/type.js').FileInfo} info 
-   */
-  async saveFileInfo (info) {
-    $.ajax({
-      url: './folder/saveFile',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ info: info }),
-    })
-    .done((data) => {
-      
-    });
   }
   end () {
     this.viewPort.remove();

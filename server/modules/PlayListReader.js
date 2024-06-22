@@ -32,6 +32,16 @@ module.exports = class PlayListReader {
     return this.createDirectoryInfoFromHierarchy(targetPath, currentFolder)
   }
 
+  /**
+   * 指定したプレイリスト情報を取得
+   * @param {String} targetPath 
+   * @returns {DirectoryElementInfo}
+   */
+  static readPlayList (targetPath) {
+    let target = this.getDirectoryElement(targetPath);
+    return target;
+  }
+
   /** ------------------------------------------------------------------------------------------ */
   // 要素の種類をまとめた処理
   /**
@@ -300,7 +310,7 @@ module.exports = class PlayListReader {
   /** ------------------------------------------------------------------------------------------ */
 
   /** プレイリストフォルダ情報読み込み */
-  static async readPlayList () {
+  static async readPlayListFile () {
     let json = await CommonReader.loadJson(PLAYLIST_FILE_PATH);
     playListInfo = json;
   }
@@ -375,7 +385,7 @@ module.exports = class PlayListReader {
       physicsName: newName,
       folders: [],
       files: [],
-    }
+    };
   }
   /**
    * ファイル情報取生成
@@ -388,7 +398,8 @@ module.exports = class PlayListReader {
       type: 'file',
       name: newName,
       physicsName: newName,
-    }
+      data: [],
+    };
   }
 
   /**

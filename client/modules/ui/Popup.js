@@ -3,6 +3,31 @@ import CommonButton from '../component/button/CommonButton.js';
 
 export default class Popup {
   /**
+   * メッセージを表示する
+   * @param {String} message 
+   * @param {function(function():void):void} callback (<カバーを消す関数>) => { } callbackを指定しなかった場合は直ぐに<カバーを消す関数>が実行される
+   */
+  static popupAlert (message, callback = null) {
+    Cover.reset();
+    let cover = Cover.getCoverDom();
+    let popup = this.createPopup();
+    popup.content.text(message);
+
+    let button = this.createButton(() => {
+      Cover.uncover();
+      let uncover = () => { Cover.uncoverCover(); };
+      if (callback) {
+        callback(uncover);
+        return;
+      }
+      uncover();
+    });
+    button.dom.text('OK');
+    popup.footer.append(button.dom);
+    cover.append(popup.popup);
+    Cover.cover();
+  } 
+  /**
    * 選択肢表示
    * @param {String} message 
    * @param {Array<String>} choice 

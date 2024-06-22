@@ -9,6 +9,7 @@ export default class Cover {
   static reset (callback) {
     coverDom.children().remove();
     coverDom.css('display', 'none');
+    coverCoverDom.css('display', 'none');
   }
   static cover (callback) {
     coverDom.css('display', 'flex');
@@ -17,19 +18,18 @@ export default class Cover {
   /**
    * カバーを消す
    * @param {function():void} callback 
-   * @param {Boolean} leaveCoverCover trueの場合はカバーのカバーを残す
+   * @param {Boolean} removeCoverCover trueの場合はカバーのカバーも消す
    */
-  static uncover (callback, leaveCoverCover) {
-    this.coverCover();
-    coverDom.css('display', 'none');
+  static uncover (callback, removeCoverCover) {
     this.reset();
-    if (!leaveCoverCover) {
+    this.coverCover();
+    if (removeCoverCover) {
       this.uncoverCover();
     }
     if (callback) { callback() };
   }
   static coverCover () {
-    coverCoverDom.css('display', '');
+    coverCoverDom.css('display', 'block');
   }
   static uncoverCover () {
     coverCoverDom.css('display', 'none');

@@ -1,3 +1,4 @@
+import PlayListClient from '../serverClient/PlayListClient.js';
 import DirectoryDisplay from './DirectoryDisplay.js';
 import Popup from '../ui/Popup.js';
 import ct from '../../constTable.js';
@@ -7,9 +8,8 @@ const NEW_KEY = '/new';
 
 /**
  * @typedef {Object} PlayListFolderExplorerOption
- * @property {function(import('./DirectoryDisplay.js').DirectoryDispElement):void} onPlayListSelected
+ * @property {function(String):void} onPlayListSelected (<選択したプレイリストへのパス>) => {}
  * @property {function(key):void} onMenuClick
- * @property {function(import('./DirectoryDisplay.js').DirectoryDispElement,import('./DirectoryDisplay.js').DirectoryDispElement):void} onDrop
  * @property {Boolean} isEditable
  */
 
@@ -24,7 +24,7 @@ export default class PlayListFolderExplorer {
     this.directoryDisplay = new DirectoryDisplay(dom, {
       createElement: null,
       onSelectFolder: (elem) => { this.open(this.getCurrentPath() + '/' + elem.key); },
-      onSelectFile: (elem) => { this.option.onPlayListSelected(elem); },
+      onSelectFile: (elem) => { this.option.onPlayListSelected(this.directoryInfo.current + '/' + elem.key); },
       onSelectUi: (elem) => {
         if (elem.key === BACK_KEY) {
           this.open(this.getCurrentPath() + '/..');
@@ -101,10 +101,10 @@ export default class PlayListFolderExplorer {
       if (!input) { return; }
       switch (key) {
         case 'フォルダ':
-          this.newFolder(input, () => { uncover(); });
+          PlayListClient.newFolder(this.directoryInfo.current, input, (data) => { this.displayInfo(data); uncover(); });
           break;
         case 'プレイリスト':
-          this.newPlayList(input, () => { uncover(); });
+          PlayListClient.newPlayList(this.directoryInfo.current, input, (data) => { this.displayInfo(data); uncover(); });
           break;
         case 'キャンセル':
           uncover();
@@ -125,10 +125,10 @@ export default class PlayListFolderExplorer {
         Popup.popupChoice(`${dragged.name} → ${dropped.name}`, ['並び替え', '移動', 'キャンセル'], (key, uncover) => {
           switch (key) {
             case '並び替え':
-              this.arrangeElement(dragged.key, dropped.key, () => { uncover() });
+              PlayListClient.arrangeElement(this.directoryInfo.current, dragged.key, dropped.key, (data) => { this.displayInfo(data); uncover() });
               break;
             case '移動':
-              this.arrangeElement(dragged.key, dropped.key, () => { uncover(); });
+              PlayListClient.moveElement(this.directoryInfo.current + '/' + dragged.key, this.directoryInfo.current + './' + dropped.key, (data) => { this.displayInfo(data); uncover(); });
               break;
             case 'キャンセル':
               uncover();
@@ -137,16 +137,16 @@ export default class PlayListFolderExplorer {
         });
         break;
       case `${DirectoryDisplay.directoryElementType.FOLDER}→${BACK_KEY}`:
-        this.moveElement(dragged.key, '..', () => {});
+        PlayListClient.moveElement(this.directoryInfo.current + '/' + dragged.key, this.directoryInfo.current + '/..', (data) => { this.displayInfo(data); });
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${DirectoryDisplay.directoryElementType.FOLDER}`:
-        this.moveElement(dragged.key, dropped.key, () => {});
+        PlayListClient.moveElement(this.directoryInfo.current + '/' + dragged.key, this.directoryInfo.current + '/' + dropped.key, (data) => { this.displayInfo(data); });
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${DirectoryDisplay.directoryElementType.FILE}`:
-        this.arrangeElement(dragged.key, dropped.key, () => {});
+        PlayListClient.arrangeElement(this.directoryInfo.current, dragged.key, dropped.key, (data) => { this.displayInfo(data); });
         break;
       case `${DirectoryDisplay.directoryElementType.FILE}→${BACK_KEY}`:
-        this.moveElement(dragged.key, '..', () => {});
+        PlayListClient.moveElement(this.directoryInfo.current + '/' + dragged.key, this.directoryInfo.current + '/..', (data) => { this.displayInfo(data); });
         break;
     }
   }
@@ -161,7 +161,7 @@ export default class PlayListFolderExplorer {
           Popup.popupChoice('本当に削除する？', ['削除', 'キャンセル'], (key, uncover) => {
             switch (key) {
               case '削除':
-                this.deleteElement(elem.name, () => { uncover(); });
+                PlayListClient.deleteElement(this.directoryInfo.current + '/' + elem.name, (data) => { this.displayInfo(data); uncover(); });
                 break;
               case 'キャンセル':
                 uncover();
@@ -173,7 +173,7 @@ export default class PlayListFolderExplorer {
           Popup.popupInput('名称変更', ['変更', 'キャンセル'], (input, key, uncover) => {
             switch (key) {
               case '変更':
-                this.renameElement(elem.name, input, () => { uncover(); });
+                PlayListClient.renameElement(this.directoryInfo.current + '/' + elem.name, input, (data) => { this.displayInfo(data); uncover(); });
                 break;
               case 'キャンセル':
                 uncover();
@@ -232,119 +232,5 @@ export default class PlayListFolderExplorer {
       name: data.current,
       elements: [...head, ...folders, ...files, ...tail],
     };
-  }
-
-  /** ------------------------------------------------------------------------------------------ */
-  // サーバ接続
-  /**
-   * 新規フォルダ作成
-   * @param {String} name 新規フォルダ名
-   * @param {function():void} callback 
-   */
-  newFolder(name, callback) {
-    $.ajax({
-      url: './playList/createPlayListFolder',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ path: this.directoryInfo.current, name: name }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * 新規プレイリスト作成
-   * @param {String} name 新規プレイリスト名
-   * @param {function():void} callback 
-   */
-  newPlayList(name, callback) {
-    $.ajax({
-      url: './playList/createPlayList',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ path: this.directoryInfo.current, name: name }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * 要素を移動する
-   * @param {String} target 移動するフォルダの相対パス
-   * @param {String} to 移動先のフォルダの相対パス
-   * @param {function():void} callback 
-   */
-  moveElement (target, to, callback) {
-    $.ajax({
-      url: './playList/moveElement',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target, toPath: this.directoryInfo.current + '/' + to }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * 要素の並び替え
-   * @param {String} target 並び変えるフォルダの相対パス
-   * @param {String} to 移動先の次のフォルダの相対パス
-   * @param {function():void} callback 
-   */
-  arrangeElement (target, to, callback) {
-    $.ajax({
-      url: './playList/arrangeElement',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current, targetName: target, toName: to }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * 要素の名称変更
-   * @param {String} target 名称変更する要素の相対パス
-   * @param {String} target 変更後の名称
-   * @param {function():void} callback 
-   */
-  renameElement (target, newName, callback) {
-    $.ajax({
-      url: './playList/renameElement',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target, newName: newName }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
-  }
-  /**
-   * 要素の削除
-   * @param {String} target 削除する要素の相対パス
-   * @param {function():void} callback 
-   */
-  deleteElement (target, callback) {
-    $.ajax({
-      url: './playList/deleteElement',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ targetPath: this.directoryInfo.current + '/' + target }),
-    })
-    .done((/** @type {DirectoryInfo} */data) => {
-      this.displayInfo(data);
-      callback();
-    });
   }
 }

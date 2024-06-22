@@ -45,7 +45,7 @@
   position: relative;
   width: calc(100% - 40px);
   height: calc(100% - 40px);
-  background-color: aliceblue;
+  background-color: honeydew;
   border-radius: 5px;
   padding: 20px;
 }
@@ -69,4 +69,21 @@
 
 .directoryDisplayElementMenu:hover {
   filter: invert(100%);
+}
+
+/** PlayListDisplay */
+.playListDisplay {
+  position: relative;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  background-color: aliceblue;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.playListDisplayPlayListName {
+  font-size: 30px;
+  width: 100%;
+  margin-bottom: 20px;
+  border-bottom: solid paleturquoise 2px;
 }

@@ -23,7 +23,7 @@ router.post('/folder/openFile', async (req, res) => {
 router.post('/folder/saveFile', async (req, res) => {
   let info = req.body.info;
   await FolderReader.saveFile(info);
-  res.send();
+  res.send({ ok: 'ok' });
 });
 
 /** フォルダルートを読み込む */

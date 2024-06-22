@@ -4,7 +4,7 @@ const router = express.Router();
 
 const PlayListReader = require('../modules/PlayListReader');
 
-PlayListReader.readPlayList();
+PlayListReader.readPlayListFile();
 
 /** プレイリストフォルダ情報取得 */
 router.post('/playList/openPlayListFolder', async (req, res) => {
@@ -67,7 +67,11 @@ router.post('/playList/deleteElement', async (req, res) => {
   res.send(folderInfo);
 });
 
-router.post('/playList/openPlayList', async (req, res) => {
+/** プレイリスト情報取得 */
+router.post('/playList/openPlayList', (req, res) => {
+  let targetPath = req.body.path;
+  let playListInfo = PlayListReader.readPlayList(targetPath);
+  res.send(playListInfo);
 });
 
 module.exports = router;
