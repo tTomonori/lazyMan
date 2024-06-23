@@ -9,6 +9,7 @@ const DirectoryElementType = {
 };
 
 const CommonReader = require('../modules/common/CommonReader');
+const FolderReader = require('./FolderReader');
 
 const PLAYLIST_FILE_PATH = __dirname + '/../../_data/PlayList.json';
 const MAX_BACKUP_NUM = 10;
@@ -35,11 +36,12 @@ module.exports = class PlayListReader {
   /**
    * 指定したプレイリスト情報を取得
    * @param {String} targetPath 
-   * @returns {DirectoryElementInfo}
+   * @returns {PlayListInfo}
    */
-  static readPlayList (targetPath) {
+  static async readPlayList (targetPath) {
     let target = this.getDirectoryElement(targetPath);
-    return target;
+    let info = await this.createPlayListInfoFromDirectoryElement(target);
+    return info;
   }
 
   /** ------------------------------------------------------------------------------------------ */
@@ -398,7 +400,7 @@ module.exports = class PlayListReader {
       type: 'file',
       name: newName,
       physicsName: newName,
-      data: [],
+      data: { list: [] },
     };
   }
 
@@ -429,6 +431,29 @@ module.exports = class PlayListReader {
       parent: path.dirname(targetPath),
       folders: hierarchy.folders.map(folder => ({ type: folder.type, name: folder.name, physicsName: folder.physicsName })),
       files: hierarchy.files,
+    };
+  }
+
+  /**
+   * ディレクトリ要素情報をプレイリスト情報に変換
+   * @param {DirectoryElementInfo} elemInfo 
+   * @returns {PlayListInfo}
+   */
+  static async createPlayListInfoFromDirectoryElement (elemInfo) {
+    let list =[];
+    for (let filePath of elemInfo.data.list) {
+      let fileName = path.basename(filePath);
+      let fileInfo = await FolderReader.readFile(fileName);
+      list.push({
+        path: filePath,
+        fileInfo: fileInfo,
+      });
+    }
+    return {
+      type: 'file',
+      name: elemInfo.name,
+      physicsName: elemInfo.name,
+      list: list,
     };
   }
 

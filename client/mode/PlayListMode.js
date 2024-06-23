@@ -40,6 +40,7 @@ export default class PlayListMode extends ViewPortMode {
         onBack: () => {
           this.openListFolder(this.currentPath);
         },
+        isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
       });
     }
     this.playListDisplay.open(listPath);

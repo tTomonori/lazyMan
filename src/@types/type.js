@@ -49,8 +49,12 @@
 
 /**
  * @typedef {Object} PlayListInfo 
- * @property {String} type 'list'
+ * @property {String} type 'file'
  * @property {String} name 表示名
  * @property {String} physicsName 物理名
- * @property {Array<Object>} list
+ * @property {Array<PlayListElement>} list
+ * 
+ * @typedef {Object} PlayListElement
+ * @property {String} path
+ * @property {FileInfo} fileInfo
  */

@@ -82,18 +82,7 @@ export default class PlayListFolderExplorer {
    * @returns {DirectoryInfo}
    */
   async fetchPlayListFolderInfo (path) {
-    return new Promise((res, rej) => {
-      $.ajax({
-        url: './playList/openPlayListFolder',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({ path: path }),
-      })
-      .done((/** @type {DirectoryInfo} */data) => {
-        res(data);
-      });
-    });
+    return await PlayListClient.readPlayListFolder(path);
   }
   /** 新規ボタン押下時 */
   async onSelectPlus () {

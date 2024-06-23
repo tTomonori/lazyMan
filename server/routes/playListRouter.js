@@ -68,9 +68,9 @@ router.post('/playList/deleteElement', async (req, res) => {
 });
 
 /** プレイリスト情報取得 */
-router.post('/playList/openPlayList', (req, res) => {
+router.post('/playList/openPlayList', async (req, res) => {
   let targetPath = req.body.path;
-  let playListInfo = PlayListReader.readPlayList(targetPath);
+  let playListInfo = await PlayListReader.readPlayList(targetPath);
   res.send(playListInfo);
 });
 

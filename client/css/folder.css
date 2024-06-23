@@ -87,3 +87,9 @@
   margin-bottom: 20px;
   border-bottom: solid paleturquoise 2px;
 }
+
+.playList {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 70px);
+}
