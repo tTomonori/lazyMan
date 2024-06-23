@@ -1,5 +1,8 @@
 const ELEMENT_CLASSNAME = 'ListDisplayElement';
+/** 親にホバーイベントを伝搬させないクラス */
 const HOVEROUT_ELEMENT_CLASS = 'hoveroutListDisplayElement';
+/** 親にアクティブイベントを伝搬させないクラス */
+const ACTIVEOUT_ELEMENT_CLASS = 'activeoutListDisplayElement';
 const ELEMENTKEY_DATANAME = 'elementkey';
 const DRAGGABLE_CLASSNAME = 'elementsDraggable';
 window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/css/folder.css">').appendTo('head');
@@ -15,7 +18,7 @@ window.folderCss = window.folderCss || $('<link rel="stylesheet" href="./client/
  */
 
 export default class ListDisplay {
-  static CONST = { ELEMENT_CLASSNAME, HOVEROUT_ELEMENT_CLASS };
+  static CONST = { ELEMENT_CLASSNAME, HOVEROUT_ELEMENT_CLASS, ACTIVEOUT_ELEMENT_CLASS };
   /**
    * @param {Object} dom 
    * @param {ListDisplayOption} option 

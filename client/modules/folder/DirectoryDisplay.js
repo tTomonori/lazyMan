@@ -23,6 +23,7 @@ const ELEMENT_MENU_CLASS = 'directoryDisplayElementMenu';
  * @property {String} key 識別子
  * @property {String} name 表示名
  * @property {String} icon アイコンファイルのURL
+ * @property {String} hoverIcon アイコンにホバー中のアイコンファイルURL
  * @property {DisplayElementOption} displayOption 表示オプション
  */
 
@@ -38,6 +39,7 @@ const ELEMENT_MENU_CLASS = 'directoryDisplayElementMenu';
  * @property {function(DirectoryDispElement):void} onSelectFile ファイル選択時
  * @property {function(DirectoryDispElement):void} onSelectUi UI選択時
  * @property {function(DirectoryDispElement):void} onMenuClick メニューアイコンクリック時
+ * @property {function(DirectoryDispElement):void} onIconClick ファイルアイコンクリック時
  * @property {Number} folderClickThreshold フォルダを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} fileClickThreshold ファイルを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} uiClickThreshold UIを選択したと判定するクリック回数(0(選択不可), 1, 2)
@@ -104,6 +106,17 @@ export default class DirectoryDisplay extends ListDisplay {
     }
   }
   /**
+   * アイコンがクリックされた
+   * @param {String} key クリックされた要素の識別子
+   * @returns 
+   */
+  iconClicked (key) {
+    if (!this.directoryDisplayOption.onIconClick) { return; }
+    let elem = this.getDirectoryElement(key);
+    this.directoryDisplayOption.onIconClick(elem);
+    return true;
+  }
+  /**
    * ドラッグ&ドロップされた
    * @param {String} dragged ドラッグされた要素の識別子
    * @param {String} dropped ドロップされた要素の識別子
@@ -145,8 +158,29 @@ export default class DirectoryDisplay extends ListDisplay {
     // アイコン
     let img = $('<img>');
     img.addClass('FolderDisplayIcon');
+    if (this.directoryDisplayOption.onIconClick) {
+      img.addClass(ListDisplay.CONST.ACTIVEOUT_ELEMENT_CLASS);
+    }
     img.prop('src', dirElem.icon);
     element.append(img);
+    $(img).on('click', (e) => {
+      if (!this.directoryDisplayOption.onIconClick) { return; }
+      this.iconClicked(key);
+      // 親要素のイベント発火を止める
+      e.stopPropagation();
+    });
+    $(img).on('dblclick', (e) => {
+      if (!this.directoryDisplayOption.onIconClick) { return; }
+      // 親要素のイベント発火を止める
+      e.stopPropagation();
+    });
+    if (dirElem.hoverIcon) {
+      // ホバー中のアイコン設定
+      $(img).hover(
+        () => { img.prop('src', dirElem.hoverIcon); },
+        () => { img.prop('src', dirElem.icon); }
+      )
+    }
     // 表示名
     let name = $('<div>')
     name.addClass('FolderDisplayName');

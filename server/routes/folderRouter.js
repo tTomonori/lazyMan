@@ -3,6 +3,8 @@ const router = express.Router();
 const FolderReader = require('../modules/FolderReader');
 const CommonReader = require('../modules/common/CommonReader');
 
+const setting = require('../../setting');
+
 setFolderRoot();
 
 /** フォルダ情報取得 */
@@ -28,7 +30,7 @@ router.post('/folder/saveFile', async (req, res) => {
 
 /** フォルダルートを読み込む */
 async function setFolderRoot () {
-  let json = await CommonReader.loadJson(__dirname + '/../../_data/LazyManSettings.json');
+  let json = await CommonReader.loadJson(setting.filePath.SETTING);
   FolderReader.setRoot(json);
 }
 

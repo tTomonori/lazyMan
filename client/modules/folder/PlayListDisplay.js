@@ -6,6 +6,7 @@ import IconButton from '../component/button/IconButton.js';
 import Popup from '../ui/Popup.js';
 import FrontMostView from '../ui/FrontMostView.js';
 import ct from '../../constTable.js';
+import gd from '../../globalData.js';
 import Cover from '../ui/Cover.js';
 
 const NEW_KEY = '/new';
@@ -18,7 +19,6 @@ const NEW_KEY = '/new';
 
 export default class PlayListDisplay {
   /**
-   * 
    * @param {jQueryElement} dom 
    * @param {PlayListDisplayOption} option 
    */
@@ -116,7 +116,10 @@ export default class PlayListDisplay {
         onSelectUi: (elem) => {
           if (elem.key === NEW_KEY) { this.selectNewMusic(); }
         },
-        onMenuClick: (elem) => { this.openMenu(elem) },
+        onMenuClick: (elem) => { this.openMenu(elem); },
+        onIconClick: (elem) => {
+          this.playElement(this.playListInfo.list.find(listElem => listElem.fileInfo.physicsName === elem.key));
+        },
         folderClickThreshold: 1,
         fileClickThreshold: 2,
         uiClickThreshold: 1,
@@ -157,6 +160,7 @@ export default class PlayListDisplay {
         key: elem.fileInfo.physicsName,
         name: elem.fileInfo.name,
         icon: ct.path.icon + 'musicFile.png',
+        hoverIcon: ct.path.icon + 'start.png',
         displayOption: { height: '50px' },
       };
     });
@@ -297,5 +301,30 @@ export default class PlayListDisplay {
     this.playListInfo = playListInfo;
     this.updateView();
     Cover.uncover(() => {}, true);
+  }
+
+  /**
+   * 指定要素の音声を再生
+   * @param {PlayListElement} key 
+   */
+  playElement (elem) {
+    let playList =this.createPlayData();
+    gd.listPlayer.setPlayList(playList);
+    gd.listPlayer.play(elem.fileInfo.physicsName);
+  }
+
+  /**
+   * 再生用のデータ生成
+   * @returns {import('../../ListPlayer.js').PlayData}
+   */
+  createPlayData () {
+    let data = this.playListInfo.list.map((elem) => {
+      return {
+        key: elem.fileInfo.physicsName,
+        name: elem.fileInfo.name,
+        path: ct.path.folderRootPath + '/' + elem.path,
+      };
+    });
+    return data;
   }
 }

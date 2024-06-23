@@ -2,6 +2,9 @@ const express = require('express');
 const ip = require('ip');
 const app = express();
 
+const setting = require('./setting.js');
+const CommonReader = require('./server/modules/common/CommonReader.js');
+
 app.use(express.json({ limit: '100mb' }));
 
 // static files directory に指定
@@ -25,6 +28,11 @@ app.get(`/${myAppCommonPath}`, (req, res) => {
 
 app.use(require('./server/routes/folderRouter.js'));
 app.use(require('./server/routes/playListRouter.js'));
+
+(async () => {
+  const settingJson = await CommonReader.loadJson(setting.filePath.SETTING);
+  app.use('/folderRootPath', express.static(settingJson.folderRootPath));
+})();
 
 // ポート指定で接続
 app.listen(port);

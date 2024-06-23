@@ -5,6 +5,7 @@ import PlayListMode from './mode/PlayListMode.js';
 import Cover from './modules/ui/Cover.js';
 
 import ct from './constTable.js';
+import gd from './globalData.js';
 
 /** ヘッダ */
 const headerDom = $('#header');

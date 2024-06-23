@@ -11,7 +11,9 @@ const DirectoryElementType = {
 const CommonReader = require('../modules/common/CommonReader');
 const FolderReader = require('./FolderReader');
 
-const PLAYLIST_FILE_PATH = __dirname + '/../../_data/PlayList.json';
+const setting = require('../../setting');
+
+const PLAYLIST_FILE_PATH = setting.filePath.PLAYLIST;
 const MAX_BACKUP_NUM = 10;
 
 /** @type {Object} */

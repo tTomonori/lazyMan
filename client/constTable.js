@@ -12,6 +12,7 @@ export default {
   },
   path: {
     icon: '/client/image/icon/',
+    folderRootPath: '/folderRootPath'
   },
-  global: () => { return window.globalObj; }
+  global: () => { return window.globalObj; },
 }

@@ -22,7 +22,7 @@
 .ListDisplayElement:active:not(:has(.hoveroutListDisplayElement:hover)) {
   filter: invert(100%);
 }
-.ListDisplayElement:active:not(:has(.hoveroutListDisplayElement:hover)) {
+.ListDisplayElement:active:not(:has(.hoveroutListDisplayElement:hover, .activeoutListDisplayElement:active)) {
   background-color: rgb(30, 30, 30);
 }
 
