@@ -8,13 +8,18 @@ app.use(express.json({ limit: '100mb' }));
 app.use(express.static(__dirname));
 
 // サイトURL生成
-const port = 3001;
+const port = 3000;
 const host = ip.address();
 const firstPath = 'lazyMan';
+const myAppCommonPath = 'myApp';
 const thisAppUrl = `${host}:${port}/${firstPath}`;
 console.log('This app URL : ' + thisAppUrl);
 
 app.get(`/${firstPath}`, (req, res) => {
+  res.render(__dirname + '/client/views/index.ejs', { thisAppUrl: thisAppUrl });
+});
+
+app.get(`/${myAppCommonPath}`, (req, res) => {
   res.render(__dirname + '/client/views/index.ejs', { thisAppUrl: thisAppUrl });
 });
 
