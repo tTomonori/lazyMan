@@ -67,10 +67,21 @@ router.post('/playList/deleteElement', async (req, res) => {
   res.send(folderInfo);
 });
 
+/** ------------------------------------------------------------------------------------------ */
+// プレイリスト
 /** プレイリスト情報取得 */
 router.post('/playList/openPlayList', async (req, res) => {
   let targetPath = req.body.path;
   let playListInfo = await PlayListReader.readPlayList(targetPath);
+  res.send(playListInfo);
+});
+
+/** プレイリストに曲追加 */
+router.post('/playList/addMusicToPlayList', async (req, res) => {
+  let playListPath = req.body.playListPath;
+  let musicPath = req.body.musicPath;
+  await PlayListReader.addMusicToPlayList(playListPath, musicPath);
+  let playListInfo = await PlayListReader.readPlayList(playListPath);
   res.send(playListInfo);
 });
 

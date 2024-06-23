@@ -165,4 +165,27 @@ export default class PlayListClient {
         });
     });
   }
+  /** ------------------------------------------------------------------------------------------ */
+  // プレイリスト
+  /**
+   * プレイリストに曲追加
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} musicPath 追加するファイルへのパス
+   * @param {function(Object):void} callback 
+   */
+  static addMusicToPlayList(playListPath, musicPath, callback = () => {}) {
+    return new Promise((res, rej) => {
+      $.ajax({
+        url: './playList/addMusicToPlayList',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({ playListPath: playListPath, musicPath: musicPath }),
+      })
+        .done((/** @type {DirectoryInfo} */data) => {
+          callback(data);
+          res(data);
+        });
+    });
+  }
 } 

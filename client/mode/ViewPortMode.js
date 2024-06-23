@@ -7,6 +7,7 @@ export default class ViewPortMode {
 
   createViewPort () {
     let port = $('<div>');
+    port.css('position', 'relative');
     this.host.append(port);
     return port;
   }

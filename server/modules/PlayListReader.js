@@ -45,7 +45,19 @@ module.exports = class PlayListReader {
   }
 
   /** ------------------------------------------------------------------------------------------ */
-  // 要素の種類をまとめた処理
+  // プレイリスト操作処理
+  static async addMusicToPlayList (playListPath, musicPath) {
+    let target = this.getDirectoryElement(playListPath);
+    if (target.data.list.some(listElem => listElem === musicPath)) {
+      // 追加済みの曲は追加不可
+      return;
+    }
+    target.data.list.push(musicPath);
+    await this.wirtePlayListFile();
+  }
+
+  /** ------------------------------------------------------------------------------------------ */
+  // 要素の種類をまとめたフォルダ操作処理
   /**
    * 移動
    * @param {String} targetPath 移動させる要素へのパス
@@ -119,7 +131,7 @@ module.exports = class PlayListReader {
   }
 
   /** ------------------------------------------------------------------------------------------ */
-  // 要素の種類ごとの処理
+  // 要素の種類ごとのフォルダ操作処理
   /**
    * フォルダ作成
    * @param {String} folderPath 新規作成する階層
@@ -133,7 +145,7 @@ module.exports = class PlayListReader {
     }
     let newFolder = this.createHierarchyInfo(folderName);
     currentFolder.folders.push(newFolder);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -149,7 +161,7 @@ module.exports = class PlayListReader {
     }
     let newFolder = this.createFileInfo(playListName);
     currentFolder.files.push(newFolder);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -176,7 +188,7 @@ module.exports = class PlayListReader {
     toFolder.folders.push(currentFolder);
     // 元の親から削除
     parentFolder.folders = parentFolder.folders.filter(elem => elem.name !== currentFolder.name);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -199,7 +211,7 @@ module.exports = class PlayListReader {
     toFolder.files.push(targetPlayList);
     // 元の親から削除
     parentFolder.files = parentFolder.files.filter(elem => elem.name !== playListName);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -219,7 +231,7 @@ module.exports = class PlayListReader {
     // 移動先の位置へ移動
     parentFolder.folders.splice(toIndex, 0, target);
 
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -239,7 +251,7 @@ module.exports = class PlayListReader {
     // 移動先の位置へ移動
     parentFolder.files.splice(toIndex, 0, target);
 
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -256,7 +268,7 @@ module.exports = class PlayListReader {
     targetFolder.name = newName;
     targetFolder.physicsName = newName;
 
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -274,7 +286,7 @@ module.exports = class PlayListReader {
     target.name = newName;
     target.physicsName = newName;
 
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -290,7 +302,7 @@ module.exports = class PlayListReader {
     let target = parentFolder.folders.splice(targetIndex, 1)[0];
 
     this.backupObject(target);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /**
@@ -306,7 +318,7 @@ module.exports = class PlayListReader {
     let target = parentFolder.files.splice(targetIndex, 1)[0];
 
     this.backupObject(target);
-    await this.writeFolder();
+    await this.wirtePlayListFile();
   }
 
   /** ------------------------------------------------------------------------------------------ */
@@ -317,7 +329,7 @@ module.exports = class PlayListReader {
     playListInfo = json;
   }
   /** プレイリストフォルダ情報を書き込む */
-  static async writeFolder () {
+  static async wirtePlayListFile () {
     await CommonReader.writeJson(PLAYLIST_FILE_PATH, playListInfo);
   }
 

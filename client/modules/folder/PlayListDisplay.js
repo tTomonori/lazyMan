@@ -1,8 +1,11 @@
 import PlayListClient from '../serverClient/PlayListClient.js';
 import DirectoryDisplay from './DirectoryDisplay.js';
+import DirectoryExplorer from './DirectoryExplorer.js';
 import IconButton from '../component/button/IconButton.js';
 import Popup from '../ui/Popup.js';
+import FrontMostView from '../ui/FrontMostView.js';
 import ct from '../../constTable.js';
+import Cover from '../ui/Cover.js';
 
 const NEW_KEY = '/new';
 
@@ -30,6 +33,10 @@ export default class PlayListDisplay {
     this.playListInfo;
     /** @type {DirectoryDisplay} */
     this.directoryDisplay;
+    /** @type {FrontMostView} */
+    this.frontMostView;
+    /** @type {DirectoryExplorer} */
+    this.directoryExplorer;
     this.playListDom;
     this.currentPath;
     this.listDom;
@@ -98,7 +105,9 @@ export default class PlayListDisplay {
         createElement: null,
         onSelectFolder: () => {},
         onSelectFile: (elemn) => {},
-        onSelectUi: (elem) => {},
+        onSelectUi: (elem) => {
+          if (elem.key === NEW_KEY) { this.selectNewMusic(); }
+        },
         onMenuClick: (elem) => {},
         folderClickThreshold: 1,
         fileClickThreshold: 1,
@@ -157,5 +166,57 @@ export default class PlayListDisplay {
       name: playListInfo.name,
       elements: elements,
     };
+  }
+  /** 新規追加する音楽を選択する */
+  selectNewMusic () {
+    this.frontMostView = new FrontMostView(this.host, {
+      coverStyle: {
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        padding: '50px',
+      },
+      boardStyle: {
+        backgroundColor: 'black',
+        padding: '20px',
+        borderRadius: '20px',
+      },
+      viewStyle: {
+      },
+    });
+    // 戻るボタン
+    let backButton = new IconButton({
+      onClick: () => { this.frontMostView.close(); },
+      icon: 'returnArrow.png',
+      size: '30px',
+      style: { filter: 'invert(100%)' }
+    });
+    this.frontMostView.view.append(backButton.dom)
+    // フォルダ表示欄
+    let view = $('<div>');
+    view.css({
+      width: '100%',
+      height: 'calc(100% - 40px)',
+      marginTop: '10px',
+    })
+    this.frontMostView.view.append(view);
+
+    this.directoryExplorer = new DirectoryExplorer(view, {
+      onSelectFile: (elem) => {
+        this.frontMostView.close();
+        let targetPath = this.directoryExplorer.getCurrentPath() + '/' + elem.key;
+        this.addMusic(targetPath);
+      }
+    });
+    this.directoryExplorer.open('');
+  }
+  /**
+   * プレイリストに追加する
+   * @param {String} targetPath 追加するファイルへのパス
+   */
+  async addMusic (targetPath) {
+    Cover.cover();
+    let playListInfo = await PlayListClient.addMusicToPlayList(this.currentPath, targetPath);
+    this.playListInfo = playListInfo;
+    this.updateView();
+    Cover.uncover(() => {}, true);
   }
 }
