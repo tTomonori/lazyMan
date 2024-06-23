@@ -188,4 +188,47 @@ export default class PlayListClient {
         });
     });
   }
+  /**
+   * プレイリストの曲並び替え
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} targetName 並び変える曲
+   * @param {String} toName 並び替え先の曲
+   * @param {function(Object):void} callback 
+   */
+  static arrangePlayListMusic(playListPath, targetName, toName, callback = () => {}) {
+    return new Promise((res, rej) => {
+      $.ajax({
+        url: './playList/arrangePlayListMusic',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({ playListPath: playListPath, targetName: targetName, toName: toName }),
+      })
+        .done((/** @type {DirectoryInfo} */data) => {
+          callback(data);
+          res(data);
+        });
+    });
+  }
+  /**
+   * プレイリストの曲削除
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} targetName 並び変える曲
+   * @param {function(Object):void} callback 
+   */
+  static deletePlayListMusic(playListPath, targetName, callback = () => {}) {
+    return new Promise((res, rej) => {
+      $.ajax({
+        url: './playList/deletePlayListMusic',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({ playListPath: playListPath, targetName: targetName }),
+      })
+        .done((/** @type {DirectoryInfo} */data) => {
+          callback(data);
+          res(data);
+        });
+    });
+  }
 } 

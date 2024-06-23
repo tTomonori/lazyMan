@@ -108,12 +108,12 @@ export default class PlayListDisplay {
         onSelectUi: (elem) => {
           if (elem.key === NEW_KEY) { this.selectNewMusic(); }
         },
-        onMenuClick: (elem) => {},
+        onMenuClick: (elem) => { this.openMenu(elem) },
         folderClickThreshold: 1,
         fileClickThreshold: 1,
         uiClickThreshold: 1,
         isMenuDisplayed: this.option.isEditable,
-        onDrop: (dragged, dropped) => {},
+        onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
         isDraggable: this.option.isEditable,
         lineMargin: '10px',
       });
@@ -207,6 +207,51 @@ export default class PlayListDisplay {
       }
     });
     this.directoryExplorer.open('');
+  }
+  /**
+   * メニューを開く
+   * @param {import('./DirectoryDisplay.js').DirectoryDispElement} elem 
+   */
+  async openMenu (elem) {
+    Popup.popupChoice('メニュー', ['削除', '閉じる'], (key, uncover) => {
+      switch (key) {
+        case '削除':
+          Popup.popupChoice('本当に削除する？', ['削除', 'キャンセル'], (key, uncover) => {
+            switch (key) {
+              case '削除':
+                PlayListClient.deletePlayListMusic(this.currentPath, elem.key, (data) => {
+                  this.playListInfo = data;
+                  this.updateView();
+                  Cover.uncover(() => {}, true);
+                  uncover();
+                });
+                break;
+              case 'キャンセル':
+                uncover();
+                break;
+            }
+          });
+          break;
+        case '閉じる':
+          uncover();
+          break;
+      }
+    });
+  }
+  /**
+   * ドラッグ&ドロップ時
+   * @param {import('./DirectoryDisplay.js').DirectoryDispElement} dragged 
+   * @param {import('./DirectoryDisplay.js').DirectoryDispElement} dropped 
+   */
+  async onDrop (dragged, dropped) {
+    if (dragged.type !== DirectoryDisplay.directoryElementType.FILE || dropped.type !== DirectoryDisplay.directoryElementType.FILE) {
+      return;
+    }
+    Cover.cover();
+    let playListInfo = await PlayListClient.arrangePlayListMusic(this.currentPath, dragged.key, dropped.key);
+    this.playListInfo = playListInfo;
+    this.updateView();
+    Cover.uncover(() => {}, true);
   }
   /**
    * プレイリストに追加する

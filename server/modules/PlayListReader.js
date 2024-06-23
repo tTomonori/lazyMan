@@ -46,6 +46,11 @@ module.exports = class PlayListReader {
 
   /** ------------------------------------------------------------------------------------------ */
   // プレイリスト操作処理
+  /**
+   * プレイリストに曲追加
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} musicPath 追加するファイルへのパス
+   */
   static async addMusicToPlayList (playListPath, musicPath) {
     let target = this.getDirectoryElement(playListPath);
     if (target.data.list.some(listElem => listElem === musicPath)) {
@@ -53,6 +58,49 @@ module.exports = class PlayListReader {
       return;
     }
     target.data.list.push(musicPath);
+    await this.wirtePlayListFile();
+  }
+
+  /**
+   * プレイリストの曲並び替え
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} targetName 並び変える曲
+   * @param {String} toName 並び替え先の曲
+   */
+  static async arrangePlayListMusic (playListPath, targetName, toName) {
+    let target = this.getDirectoryElement(playListPath);
+    let arrangeTargetPath = path.basename(targetName);
+    // 元のインデックス
+    let targetIndex = target.data.list.findIndex(elem => path.basename(elem) === arrangeTargetPath);
+    // 移動先のインデックス
+    let toIndex = target.data.list.findIndex(elem => path.basename(elem) === toName);
+    if (targetIndex < 0 || toIndex < 0) {
+      // 移動対象が見つからなかったら終了
+      return;
+    }
+    // 元の位置から削除
+    let deletedTarget = target.data.list.splice(targetIndex, 1)[0];
+    // 移動先の位置へ移動
+    target.data.list.splice(toIndex, 0, deletedTarget);
+    await this.wirtePlayListFile();
+  }
+
+  /**
+   * プレイリストの曲削除
+   * @param {String} playListPath 対象のプレイリストへのパス
+   * @param {String} targetName 並び変える曲
+   */
+  static async deletePlayListMusic (playListPath, targetName) {
+    let target = this.getDirectoryElement(playListPath);
+    let deleteTargetPath = path.basename(targetName);
+    // 元のインデックス
+    let targetIndex = target.data.list.findIndex(elem => path.basename(elem) === deleteTargetPath);
+    if (targetIndex < 0) {
+      // 削除対象が見つからなかったら終了
+      return;
+    }
+    // 元の位置から削除
+    target.data.list.splice(targetIndex, 1)[0];
     await this.wirtePlayListFile();
   }
 

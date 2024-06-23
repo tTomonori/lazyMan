@@ -85,4 +85,23 @@ router.post('/playList/addMusicToPlayList', async (req, res) => {
   res.send(playListInfo);
 });
 
+/** プレイリストの曲並び替え */
+router.post('/playList/arrangePlayListMusic', async (req, res) => {
+  let playListPath = req.body.playListPath;
+  let targetName = req.body.targetName;
+  let toName = req.body.toName;
+  await PlayListReader.arrangePlayListMusic(playListPath, targetName, toName);
+  let playListInfo = await PlayListReader.readPlayList(playListPath);
+  res.send(playListInfo);
+});
+
+/** プレイリストの曲削除 */
+router.post('/playList/deletePlayListMusic', async (req, res) => {
+  let playListPath = req.body.playListPath;
+  let targetName = req.body.targetName;
+  await PlayListReader.deletePlayListMusic(playListPath, targetName);
+  let playListInfo = await PlayListReader.readPlayList(playListPath);
+  res.send(playListInfo);
+});
+
 module.exports = router;
