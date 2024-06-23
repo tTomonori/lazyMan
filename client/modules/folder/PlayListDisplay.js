@@ -1,6 +1,7 @@
 import PlayListClient from '../serverClient/PlayListClient.js';
 import DirectoryDisplay from './DirectoryDisplay.js';
 import DirectoryExplorer from './DirectoryExplorer.js';
+import FileDisplay from './FileDisplay.js';
 import IconButton from '../component/button/IconButton.js';
 import Popup from '../ui/Popup.js';
 import FrontMostView from '../ui/FrontMostView.js';
@@ -37,6 +38,8 @@ export default class PlayListDisplay {
     this.frontMostView;
     /** @type {DirectoryExplorer} */
     this.directoryExplorer;
+    /** @type {FileDisplay} */
+    this.fileDisplay;
     this.playListDom;
     this.currentPath;
     this.listDom;
@@ -51,6 +54,11 @@ export default class PlayListDisplay {
   }
   /** オプションを適用 */
   applyOption () {
+    if (this.fileDisplay) {
+      this.fileDisplay.setOption({
+        isEditable: this.option.isEditable,
+      });
+    }
     this.updateView();
   }
   /**
@@ -104,13 +112,13 @@ export default class PlayListDisplay {
       this.directoryDisplay = new DirectoryDisplay(this.playListDom, {
         createElement: null,
         onSelectFolder: () => {},
-        onSelectFile: (elemn) => {},
+        onSelectFile: (elem) => { this.openFile(elem); },
         onSelectUi: (elem) => {
           if (elem.key === NEW_KEY) { this.selectNewMusic(); }
         },
         onMenuClick: (elem) => { this.openMenu(elem) },
         folderClickThreshold: 1,
-        fileClickThreshold: 1,
+        fileClickThreshold: 2,
         uiClickThreshold: 1,
         isMenuDisplayed: this.option.isEditable,
         onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
@@ -179,12 +187,14 @@ export default class PlayListDisplay {
         padding: '20px',
         borderRadius: '20px',
       },
-      viewStyle: {
-      },
+      viewStyle: {},
     });
     // 戻るボタン
     let backButton = new IconButton({
-      onClick: () => { this.frontMostView.close(); },
+      onClick: () => {
+        this.directoryExplorer = null;
+        this.frontMostView.close();
+      },
       icon: 'returnArrow.png',
       size: '30px',
       style: { filter: 'invert(100%)' }
@@ -201,8 +211,9 @@ export default class PlayListDisplay {
 
     this.directoryExplorer = new DirectoryExplorer(view, {
       onSelectFile: (elem) => {
-        this.frontMostView.close();
         let targetPath = this.directoryExplorer.getCurrentPath() + '/' + elem.key;
+        this.directoryExplorer = null;
+        this.frontMostView.close();
         this.addMusic(targetPath);
       }
     });
@@ -237,6 +248,29 @@ export default class PlayListDisplay {
           break;
       }
     });
+  }
+  /**
+   * ファイル情報を開く
+   * @param {import('./DirectoryDisplay.js').DirectoryDispElement} elem 
+   */
+  async openFile (elem) {
+    this.frontMostView = new FrontMostView(this.host, {
+      coverStyle: {
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        padding: '20px',
+      },
+      boardStyle: {},
+      viewStyle: {},
+    });
+
+    this.fileDisplay = new FileDisplay(this.frontMostView.view, {
+      onBack: () => {
+        this.fileDisplay = null;
+        this.frontMostView.close();
+      },
+      isEditable: this.option.isEditable,
+    });
+    this.fileDisplay.open(elem.key);
   }
   /**
    * ドラッグ&ドロップ時
