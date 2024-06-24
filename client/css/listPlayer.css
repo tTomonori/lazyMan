@@ -1,0 +1,13 @@
+.listPlayer {
+  height: 50px;
+  width: 280px;
+}
+
+.listPlayerControls {
+  position: fixed;
+}
+
+.listPlayerControls.listPlayerControls_header {
+  top: 0;
+  right: 0;
+}

@@ -5,30 +5,40 @@
  * @property {String} path 音声ファイルへのパス
  */
 
-/** @type {Array<PlayData>} */
-let playListData;
-/** @type {jQueryElement} */
-let audiojQ = $('<audio>');
-/** @type {HTMLAudioElement} */
-let audioDom = audiojQ[0];
-
-/** @type {PlayData} 再生中のデータ */
-let playingData;
-
-$(document.body).append(audiojQ);
-
-audiojQ.on('ended', () => {
-  ListPlayer.playNext();
-})
-
 export default class ListPlayer {
+  static init() {
+    /** @type {Array<PlayData>} */
+    this.playListData;
+    /** @type {jQueryElement} */
+    this.audiojQ = $('<audio>');
+    this.audiojQ.addClass('listPlayer');
+    this.audiojQ.prop('controls', true);
+    /** @type {HTMLAudioElement} */
+    this.audioDom = this.audiojQ[0];
+
+    /** @type {PlayData} 再生中のデータ */
+    this.playingData;
+
+    /** @type {HTMLElement} */
+    this.playerControl = $('<div>');
+    this.playerControl.addClass('listPlayerControls');
+    this.playerControl.prepend(this.audiojQ);
+
+    $(document.body).append(this.playerControl);
+
+    this.audiojQ.on('ended', () => {
+      ListPlayer.playNext();
+    })
+
+    this.playerControl.addClass('listPlayerControls_header');
+  }
   /**
    * プレイリストをセット
    * @param {Array<PlayData>} listInfo 
    */
   static setPlayList (listInfo) {
-    audioDom.pause();
-    playListData = listInfo;
+    this.audioDom.pause();
+    this.playListData = listInfo;
   }
 
   /**
@@ -39,27 +49,35 @@ export default class ListPlayer {
     let playData;
     switch (typeof key) {
       case 'string':
-        playData = playListData.find(data => data.key === key);
+        this.playData = this.playListData.find(data => data.key === key);
         break;
       case 'number':
-        playData = playListData[key];
+        this.playData = this.playListData[key];
         break;
     }
-    if (!playData) { return; }
-    audiojQ.prop('src', playData.path);
-    playingData = playData;
-    audioDom.play();
+    if (!this.playData) { return; }
+    this.audiojQ.prop('src', this.playData.path);
+    this.playingData = this.playData;
+    this.audiojQ.prop('title', this.playingData.name);
+    this.audioDom.play();
 
     setTimeout(() => {
-      audiojQ.trigger('ended');
+      this.audiojQ.trigger('ended');
     }, 5000);
   }
 
   /** 次の曲再生 */
   static playNext () {
-    let currentIndex = playListData.findIndex(data => data.path === playingData.path);
+    let currentIndex = this.playListData.findIndex(data => data.path === this.playingData.path);
     if (currentIndex < 0) { return; }
-    let nextIndex = (currentIndex + playListData.length + 1) % playListData.length;
+    let nextIndex = (currentIndex + playListData.length + 1) % this.playListData.length;
     this.play(nextIndex);
   }
+}
+
+
+if (!window.listPlayerInitialized) {
+  window.listPlayerInitialized = true;
+  $('<link rel="stylesheet" href="./client/css/listPlayer.css">').appendTo('head');
+  ListPlayer.init();
 }

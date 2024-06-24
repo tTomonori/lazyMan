@@ -90,6 +90,7 @@ export default class PlayListDisplay {
       position: 'absolute',
       right: `calc(${this.view.css('paddingRight')} + ${buttonSize} + 20px)`,
     });
+    editButton.setDisabled(!this.option.isEditable);
     this.view.append(editButton.dom);
     editButton.dom.on('mouseup', () => { this.editPlayListName(this.playListInfo.name); });
 
