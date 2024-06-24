@@ -49,15 +49,15 @@ export default class ListPlayer {
     let playData;
     switch (typeof key) {
       case 'string':
-        this.playData = this.playListData.find(data => data.key === key);
+        playData = this.playListData.find(data => data.key === key);
         break;
       case 'number':
-        this.playData = this.playListData[key];
+        playData = this.playListData[key];
         break;
     }
-    if (!this.playData) { return; }
-    this.audiojQ.prop('src', this.playData.path);
-    this.playingData = this.playData;
+    if (!playData) { return; }
+    this.audiojQ.prop('src', playData.path);
+    this.playingData = playData;
     this.audiojQ.prop('title', this.playingData.name);
     this.audioDom.play();
 
