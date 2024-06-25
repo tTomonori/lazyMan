@@ -1,3 +1,4 @@
+import FolderClient from '../serverClient/FolderClient.js';
 import IconButton from '../component/button/IconButton.js';
 import Popup from '../ui/Popup.js';
 
@@ -48,14 +49,7 @@ export default class FileDisplay {
    * @param {String} fileName 
    */
   open (fileName) {
-    $.ajax({
-      url: './folder/openFile',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ name: fileName }),
-    })
-    .done((data) => {
+    FolderClient.readFile(fileName, (data) => {
       this.fileInfo = data;
       this.updateView();
     });
@@ -168,30 +162,14 @@ export default class FileDisplay {
       switch (key) {
         case '保存':
           let info = this.getEditedFilInfo();
-          this.saveFileInfo(info, () => {
+          FolderClient.writeFile(info, () => {
             Popup.popupAlert('保存しました。');
-          });
+          })
           break;
         case 'キャンセル':
           uncover();
           break;
       }
     })
-  }
-  /**
-   * ファイル情報を保存
-   * @param {import('../../scripts/type.js').FileInfo} info 
-   */
-  async saveFileInfo (info, callback) {
-    $.ajax({
-      url: './folder/saveFile',
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ info: info }),
-    })
-    .done((data) => {
-      callback(data);
-    });
   }
 }

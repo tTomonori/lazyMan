@@ -1,3 +1,4 @@
+import FolderClient from '../serverClient/FolderClient.js';
 import DirectoryDisplay from './DirectoryDisplay.js';
 
 import ct from '../../constTable.js';
@@ -47,27 +48,10 @@ export default class DirectoryExplorer {
    * @param {String} path 
    */
   async open (path) {
-    this.directoryInfo = await this.fetchDirectoryInfo(path);
-    let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
-    this.directoryDisplay.open(dispInfo);
-  }
-  /**
-   * サーバからディレクトリ情報を取得
-   * @param {String} path 
-   * @returns {Promise<import('../../../scripts/type.js').DirectoryInfo>}
-   */
-  async fetchDirectoryInfo (path) {
-    return new Promise((res, rej) => {
-      $.ajax({
-        url: './folder/openFolder',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({ path: path }),
-      })
-      .done((/** @type {import('../../../scripts/type.js').DirectoryInfo} */data) => {
-        res(data);
-      });
+    FolderClient.readFolder(path, (data) => {
+      this.directoryInfo = data;
+      let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
+      this.directoryDisplay.open(dispInfo);
     });
   }
   /**
