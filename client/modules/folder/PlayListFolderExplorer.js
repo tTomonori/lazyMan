@@ -2,6 +2,7 @@ import PlayListClient from '../serverClient/PlayListClient.js';
 import DirectoryDisplay from './DirectoryDisplay.js';
 import Popup from '../ui/Popup.js';
 import ct from '../../constTable.js';
+import gd from '../../globalData.js';
 
 const BACK_KEY = '/back';
 const NEW_KEY = '/new';
@@ -37,19 +38,29 @@ export default class PlayListFolderExplorer {
       folderClickThreshold: 1,
       fileClickThreshold: 1,
       uiClickThreshold: 1,
-      isMenuDisplayed: this.option.isEditable,
+      isMenuDisplayed: this.isEditable(),
       onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
-      isDraggable: option.isEditable,
+      isDraggable: this.isEditable(),
       lineMargin: '10px',
     });
     /** @type {DirectoryInfo} */
     this.directoryInfo = null;
+    // オブザーバ追加
+    gd.subject.addObserver({ dom: this.host[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      this.setEditMode();
+    }});
   }
-  setEditMode (editMode) {
-    this.option.isEditable = editMode === ct.editMode.EDITABLE;
+  isEditable () {
+    if (!this.option.isEditable) { return false; }
+    return gd.modeManager.mode === gd.modeManager.MODE.EDITABLE;
+  }
+  setEditMode () {
+    if (!this.option.isEditable) { return; }
+      let isEditable = this.isEditable();
     this.directoryDisplay.setOption({
-      isDraggable: this.option.isEditable,
-      isMenuDisplayed: this.option.isEditable,
+      isDraggable: isEditable,
+      isMenuDisplayed: isEditable,
     });
     let dispInfo = this.createDirectoryDispInfo(this.directoryInfo);
     this.directoryDisplay.open(dispInfo);
@@ -206,7 +217,7 @@ export default class PlayListFolderExplorer {
       name: info.name,
       icon: ct.path.icon + 'musicList.png',
     }));
-    if (this.option.isEditable) {
+    if (this.isEditable()) {
       // フォルダ新規作成ボタン
       tail = [{
         type: DirectoryDisplay.directoryElementType.UI,

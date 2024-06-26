@@ -3,6 +3,7 @@ import DirectoryExplorer from '../modules/folder/DirectoryExplorer.js';
 import FileDisplay from '../modules/folder/FileDisplay.js';
 
 import ct from '../constTable.js';
+import gd from '../globalData.js';
 
 export default class FolderMode extends ViewPortMode {
   constructor (dom) {
@@ -21,6 +22,7 @@ export default class FolderMode extends ViewPortMode {
    * @param {String} path 
    */
   openFolder (path) {
+    gd.subject.filterObservers();
     if (!this.directoryExplorer) {
       this.resetPort();
       this.directoryExplorer = new DirectoryExplorer(this.viewPort, {
@@ -38,13 +40,14 @@ export default class FolderMode extends ViewPortMode {
    * @param {String} fileName 
    */
   openFile (fileName) {
+    gd.subject.filterObservers();
     if (!this.fileDisplay) {
       this.resetPort();
       this.fileDisplay = new FileDisplay(this.viewPort, {
         onBack: () => {
           this.openFolder(this.currentPath);
         },
-        isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
+        isEditable: true,
       });
     }
     this.fileDisplay.open(fileName);
@@ -54,13 +57,6 @@ export default class FolderMode extends ViewPortMode {
     this.directoryExplorer = null;
     this.fileDisplay = null;
     this.viewPort = super.createViewPort();
-  }
-  setEditMode (editMode) {
-    if (this.fileDisplay) {
-      this.fileDisplay.setOption({
-        isEditable: editMode === ct.editMode.EDITABLE,
-      });
-    }
   }
   end () {
     this.viewPort.remove();

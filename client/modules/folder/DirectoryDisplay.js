@@ -74,19 +74,6 @@ export default class DirectoryDisplay extends ListDisplay {
     this.directoryDispInfo = {};
   }
   /**
-   * optionを変更
-   * @param {DirectoryDisplayOption} option 
-   */
-  setOption (option) {
-    Object.assign(this.directoryDisplayOption, option);
-    super.setOption(option);
-  }
-  /** optionの設定を反映する */
-  applyOption () {
-    super.applyOption();
-    $(this.host).find('.' + ELEMENT_MENU_CLASS).css('display', this.option.isMenuDisplayed ? 'block' : 'none')
-  }
-  /**
    * 要素が選択された
    * @param {String} key 要素の識別子
    * @param {Number} clickNum クリック回数

@@ -43,23 +43,20 @@ export default class PlayListDisplay {
     this.playListDom;
     this.currentPath;
     this.listDom;
+    // オブザーバ追加
+    gd.subject.addObserver({ dom: this.host[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      this.setEditMode();
+    }});  }
+  isEditable () {
+    if (!this.option.isEditable) { return false; }
+    return gd.modeManager.mode === gd.modeManager.MODE.EDITABLE;
   }
-  /**
-   * オプションを変更
-   * @param {FileDisplayOption} option 
-   */
-  setOption (option) {
-    Object.assign(this.option, option);
-    this.applyOption();
-  }
-  /** オプションを適用 */
-  applyOption () {
-    if (this.fileDisplay) {
-      this.fileDisplay.setOption({
-        isEditable: this.option.isEditable,
-      });
+  setEditMode() {
+    if (!this.option.isEditable) { return; }
+    if (this.directoryDisplay) {
+      this.updatePlayList();
     }
-    this.updateView();
   }
   /**
    * プレイリスト情報を開く
@@ -90,7 +87,11 @@ export default class PlayListDisplay {
       position: 'absolute',
       right: `calc(${this.view.css('paddingRight')} + ${buttonSize} + 20px)`,
     });
-    editButton.setDisabled(!this.option.isEditable);
+    editButton.setDisabled(!this.isEditable());
+    gd.subject.addObserver({ dom: editButton.dom[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      editButton.setDisabled(!this.isEditable());
+    }})
     this.view.append(editButton.dom);
     editButton.dom.on('mouseup', () => { this.editPlayListName(this.playListInfo.name); });
 
@@ -124,10 +125,16 @@ export default class PlayListDisplay {
         folderClickThreshold: 1,
         fileClickThreshold: 2,
         uiClickThreshold: 1,
-        isMenuDisplayed: this.option.isEditable,
+        isMenuDisplayed: this.isEditable(),
         onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
-        isDraggable: this.option.isEditable,
+        isDraggable: this.isEditable(),
         lineMargin: '10px',
+      });
+    }
+    else {
+      this.directoryDisplay.setOption({
+        isMenuDisplayed: this.isEditable(),
+        isDraggable: this.isEditable(),
       });
     }
     this.directoryDisplay.open(this.createDirectoryDispInfoFromPlayListInfo(this.playListInfo));
@@ -166,7 +173,7 @@ export default class PlayListDisplay {
       };
     });
     // 編集モード時は新規追加ボタンを追加
-    if (this.option.isEditable) {
+    if (this.isEditable()) {
       elements.push({
         type: DirectoryDisplay.directoryElementType.UI,
         key: NEW_KEY,
@@ -273,7 +280,7 @@ export default class PlayListDisplay {
         this.fileDisplay = null;
         this.frontMostView.close();
       },
-      isEditable: this.option.isEditable,
+      isEditable: true,
     });
     this.fileDisplay.open(elem.key);
   }

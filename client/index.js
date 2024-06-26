@@ -35,9 +35,6 @@ let currentMode = new ViewPortMode();
 
 init();
 
-window.globalObj = {};
-window.globalObj.getEditMode = getEditMode;
-
 // 初期化--------------------------------------------------
 async function init () {
   createHeader();
@@ -99,12 +96,9 @@ function changeLeftMenuDisp() {
 /** 編集モード切替 */
 function changeEditMode() {
   editButton.setProhibitonImage();
-  currentMode.setEditMode(getEditMode());
+  let mode = gd.modeManager.mode === gd.modeManager.MODE.EDITABLE ? gd.modeManager.MODE.READONLY : gd.modeManager.MODE.EDITABLE;
+  gd.modeManager.setMode(mode)
 };
-
-function getEditMode () {
-  return editButton.isProhibition() ? ct.editMode.READONLY : ct.editMode.EDITABLE;
-}
 
 // コンテンツ動作--------------------------------------------------
 /** フォルダ表示 */

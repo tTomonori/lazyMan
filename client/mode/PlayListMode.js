@@ -2,9 +2,8 @@ import ViewPortMode from './ViewPortMode.js';
 import PlayListFolderExplorer from '../modules/folder/PlayListFolderExplorer.js';
 import PlayListDisplay from '../modules/folder/PlayListDisplay.js';
 
-import Popup from '../modules/ui/Popup.js';
-
 import ct from '../constTable.js';
+import gd from '../globalData.js';
 
 export default class PlayListMode extends ViewPortMode {
   constructor (dom) {
@@ -20,6 +19,7 @@ export default class PlayListMode extends ViewPortMode {
     this.openListFolder('');
   }
   openListFolder (path) {
+    gd.subject.filterObservers();
     if (!this.playListFolderExplorer) {
       this.resetPort();
       this.playListFolderExplorer = new PlayListFolderExplorer(this.viewPort, {
@@ -27,20 +27,21 @@ export default class PlayListMode extends ViewPortMode {
           this.currentPath = this.playListFolderExplorer.getCurrentPath();
           this.openPlayList(listPath);
         },
-        isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
+        isEditable: true,
       });
     }
     this.currentPath = path;
     this.playListFolderExplorer.open(path);
   }
   openPlayList (listPath) {
+    gd.subject.filterObservers();
     if (!this.playListDisplay) {
       this.resetPort();
       this.playListDisplay = new PlayListDisplay(this.viewPort, {
         onBack: () => {
           this.openListFolder(this.currentPath);
         },
-        isEditable: ct.global().getEditMode() === ct.editMode.EDITABLE,
+        isEditable: true,
       });
     }
     this.playListDisplay.open(listPath);
@@ -50,16 +51,6 @@ export default class PlayListMode extends ViewPortMode {
     this.playListFolderExplorer = null;
     this.playListDisplay = null;
     this.viewPort = super.createViewPort();
-  }
-  setEditMode (editMode) {
-    if (this.playListFolderExplorer) {
-      this.playListFolderExplorer.setEditMode(editMode);
-    }
-    else if (this.playListDisplay) {
-      this.playListDisplay.setOption({
-        isEditable: editMode === ct.editMode.EDITABLE,
-      });
-    }
   }
   end () {
     this.viewPort.remove();

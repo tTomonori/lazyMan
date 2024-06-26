@@ -1,6 +1,9 @@
 import FolderClient from '../serverClient/FolderClient.js';
+import Subject from '../../Subject.js';
 import IconButton from '../component/button/IconButton.js';
 import Popup from '../ui/Popup.js';
+
+import gd from '../../globalData.js';
 
 /**
  * @typedef {Object} FileDisplayOption
@@ -29,20 +32,9 @@ export default class FileDisplay {
     this.lyricsSizeArea;
     this.inputArea = [];
   }
-  /**
-   * オプションを変更
-   * @param {FileDisplayOption} option 
-   */
-  setOption (option) {
-    Object.assign(this.option, option);
-    this.applyOption();
-  }
-  /** オプションを適用 */
-  applyOption () {
-    this.inputArea.forEach((inputArea) => {
-      inputArea.prop('readonly', !this.option.isEditable);
-    });
-    this.saveButton.setDisabled(!this.option.isEditable);
+  isEditable () {
+    if (!this.option.isEditable) { return false; }
+    return gd.modeManager.mode === gd.modeManager.MODE.EDITABLE;
   }
   /**
    * ファイル情報を開く
@@ -66,14 +58,17 @@ export default class FileDisplay {
     });
     this.host.append(backButton.dom);
     backButton.dom.on('mouseup', () => { this.option.onBack(); })
-    // 保存ボタン
-    let saveButton = new IconButton({ icon: 'save.png', size: buttonSize });
-    saveButton.dom.css({
-      position: 'absolute',
-      right: `calc(${this.host.css('paddingRight')} + ${buttonSize} + 20px)`,
-    });
-    this.host.append(saveButton.dom);
-    saveButton.dom.on('mouseup', () => { this.onRegist(); })
+    // 保存ボタン(編集機能が有効の場合のみ)
+    let saveButton = null;
+    if (this.option.isEditable) {
+      saveButton = new IconButton({ icon: 'save.png', size: buttonSize });
+      saveButton.dom.css({
+        position: 'absolute',
+        right: `calc(${this.host.css('paddingRight')} + ${buttonSize} + 20px)`,
+      });
+      this.host.append(saveButton.dom);
+      saveButton.dom.on('mouseup', () => { this.onRegist(); });
+    }
 
     let labelWidth = '60px';
     let miniInputWidth = '32px';
@@ -135,12 +130,35 @@ export default class FileDisplay {
       lyricsArea.css({ fontSize: size ? size + 'px' : '' });
     });
 
+    // 編集機能の設定
+    if (saveButton) {
+      saveButton.setDisabled(!this.isEditable());
+      Subject.addObserver({ dom: saveButton.dom[0], receiver: (msg, prm) => {
+        if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+        saveButton.setDisabled(!this.isEditable());
+      } });
+    }
+    nameArea.prop('readonly', !this.isEditable());
+    lyricsArea.prop('readonly', !this.isEditable());
+    lyricsSizeArea.prop('readonly', !this.isEditable());
+    Subject.addObserver({ dom: nameArea[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      nameArea.prop('readonly', !this.isEditable());
+    } });
+    Subject.addObserver({ dom: lyricsArea[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      lyricsArea.prop('readonly', !this.isEditable());
+    } });
+    Subject.addObserver({ dom: lyricsSizeArea[0], receiver: (msg, prm) => {
+      if (msg !== gd.modeManager.CHANGEMODE_MESSAGE) { return; }
+      lyricsSizeArea.prop('readonly', !this.isEditable());
+    } });
+
     this.saveButton = saveButton;
     this.nameArea = nameArea;
     this.lyricsArea = lyricsArea;
     this.lyricsSizeArea = lyricsSizeArea;
     lyricsSizeArea.trigger('blur');
-    this.applyOption();
   }
   /**
    * 編集中のファイル情報を取得
