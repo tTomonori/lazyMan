@@ -8,6 +8,7 @@ import FrontMostView from '../ui/FrontMostView.js';
 import ct from '../../constTable.js';
 import gd from '../../globalData.js';
 import Cover from '../ui/Cover.js';
+import MusicPlayerButton from '../component/button/MusicPlayerButton.js';
 
 const NEW_KEY = '/new';
 
@@ -119,9 +120,7 @@ export default class PlayListDisplay {
           if (elem.key === NEW_KEY) { this.selectNewMusic(); }
         },
         onMenuClick: (elem) => { this.openMenu(elem); },
-        onIconClick: (elem) => {
-          this.playElement(this.playListInfo.list.find(listElem => listElem.fileInfo.physicsName === elem.key));
-        },
+        onIconClick: (elem) => { },
         folderClickThreshold: 1,
         fileClickThreshold: 2,
         uiClickThreshold: 1,
@@ -162,12 +161,20 @@ export default class PlayListDisplay {
    * @returns {import('./DirectoryDisplay.js').DirectoryDispInfo} 
    */
   createDirectoryDispInfoFromPlayListInfo (playListInfo) {
+    let createMusicPlayerButton = (key) => {
+      return new MusicPlayerButton({
+        size: '45px',
+        style: { 'margin-right': '10px', filter: 'invert(100%)' },
+        musicKey: key,
+        playList: () => { return this.createPlayListData(); },
+      }).dom;
+    };
     let elements = this.playListInfo.list.map((elem) => {
       return {
         type: 'file',
         key: elem.fileInfo.physicsName,
         name: elem.fileInfo.name,
-        icon: ct.path.icon + 'musicFile.png',
+        icon: () => { return createMusicPlayerButton(ct.path.folderRootPath + '/' + elem.path); },
         hoverIcon: ct.path.icon + 'start.png',
         displayOption: { height: '50px' },
       };
@@ -316,23 +323,27 @@ export default class PlayListDisplay {
    * @param {PlayListElement} key 
    */
   playElement (elem) {
-    let playList =this.createPlayData();
+    let playList =this.createPlayListData();
     gd.listPlayer.setPlayList(playList);
     gd.listPlayer.play(elem.fileInfo.physicsName);
   }
 
   /**
    * 再生用のデータ生成
-   * @returns {import('../../ListPlayer.js').PlayData}
+   * @returns {import('../../ListPlayer.js').PlayListData}
    */
-  createPlayData () {
-    let data = this.playListInfo.list.map((elem) => {
+  createPlayListData () {
+    let list = this.playListInfo.list.map((elem) => {
       return {
-        key: elem.fileInfo.physicsName,
+        key: ct.path.folderRootPath + '/' + elem.path,
         name: elem.fileInfo.name,
         path: ct.path.folderRootPath + '/' + elem.path,
       };
     });
-    return data;
+    return {
+      name: this.playListInfo.name,
+      key: this.currentPath,
+      list: list,
+    };
   }
 }

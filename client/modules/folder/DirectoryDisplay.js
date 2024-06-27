@@ -22,7 +22,7 @@ const ELEMENT_MENU_CLASS = 'directoryDisplayElementMenu';
  * @property {DirectoryElementType} type 種類
  * @property {String} key 識別子
  * @property {String} name 表示名
- * @property {String} icon アイコンファイルのURL
+ * @property {String|function():jQueryElement} icon アイコンファイルのURL or DOM要素を返す関数
  * @property {String} hoverIcon アイコンにホバー中のアイコンファイルURL
  * @property {DisplayElementOption} displayOption 表示オプション
  */
@@ -143,12 +143,18 @@ export default class DirectoryDisplay extends ListDisplay {
     let element = $('<div>');
     element.css({ height: opt.height || '50px' });
     // アイコン
-    let img = $('<img>');
-    img.addClass('FolderDisplayIcon');
-    if (this.directoryDisplayOption.onIconClick) {
-      img.addClass(ListDisplay.CONST.ACTIVEOUT_ELEMENT_CLASS);
+    let img;
+    if (typeof dirElem.icon === 'string') {
+      img = $('<img>');
+      img.addClass('FolderDisplayIcon');
+      if (this.directoryDisplayOption.onIconClick) {
+        img.addClass(ListDisplay.CONST.ACTIVEOUT_ELEMENT_CLASS);
+      }
+      img.prop('src', dirElem.icon);
     }
-    img.prop('src', dirElem.icon);
+    else if (typeof dirElem.icon === 'function') {
+      img = dirElem.icon();
+    }
     element.append(img);
     $(img).on('click', (e) => {
       if (!this.directoryDisplayOption.onIconClick) { return; }

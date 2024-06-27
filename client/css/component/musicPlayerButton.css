@@ -1,0 +1,27 @@
+:root {
+  --fileIcon: url('../../image/icon/musicFile.png');
+  --playIcon: url('../../image/icon/start.png');
+  --pauseIcon: url('../../image/icon/stop.png');
+  --playingIcon: url('../../image/icon/playing.png');
+}
+
+.musicPlayerButton {
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.musicPlayerButton.playingMusicPlayerButton {
+  background-image: var(--playingIcon);
+}
+
+.musicPlayerButton.playingMusicPlayerButton:hover {
+  background-image: var(--pauseIcon);
+}
+
+.musicPlayerButton.notPlayingMusicPlayerButton {
+  background-image: var(--fileIcon);
+}
+
+.musicPlayerButton.notPlayingMusicPlayerButton:hover {
+  background-image: var(--playIcon);
+}
