@@ -120,7 +120,10 @@ export default class PlayListDisplay {
           if (elem.key === NEW_KEY) { this.selectNewMusic(); }
         },
         onMenuClick: (elem) => { this.openMenu(elem); },
-        onIconClick: (elem) => { },
+        onIconClick: (elem, num) => {
+          // クリックイベントの伝搬を止める
+          return true;
+        },
         folderClickThreshold: 1,
         fileClickThreshold: 2,
         uiClickThreshold: 1,
@@ -161,6 +164,7 @@ export default class PlayListDisplay {
    * @returns {import('./DirectoryDisplay.js').DirectoryDispInfo} 
    */
   createDirectoryDispInfoFromPlayListInfo (playListInfo) {
+    // 音声再生ボタン生成クロージャ
     let createMusicPlayerButton = (key) => {
       return new MusicPlayerButton({
         size: '45px',
@@ -174,7 +178,7 @@ export default class PlayListDisplay {
         type: 'file',
         key: elem.fileInfo.physicsName,
         name: elem.fileInfo.name,
-        icon: () => { return createMusicPlayerButton(ct.path.folderRootPath + '/' + elem.path); },
+        icon: () => { return createMusicPlayerButton(elem.path); },
         hoverIcon: ct.path.icon + 'start.png',
         displayOption: { height: '50px' },
       };
@@ -335,14 +339,14 @@ export default class PlayListDisplay {
   createPlayListData () {
     let list = this.playListInfo.list.map((elem) => {
       return {
-        key: ct.path.folderRootPath + '/' + elem.path,
+        key: elem.path,
         name: elem.fileInfo.name,
         path: ct.path.folderRootPath + '/' + elem.path,
       };
     });
     return {
       name: this.playListInfo.name,
-      key: this.currentPath,
+      key: ct.playlistType.PLEYLIST + this.currentPath,
       list: list,
     };
   }

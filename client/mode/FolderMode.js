@@ -30,6 +30,7 @@ export default class FolderMode extends ViewPortMode {
           this.currentPath = this.directoryExplorer.getCurrentPath();
           this.openFile(info.key);
         },
+        isValidatePlayButton: true,
       });
     }
     this.currentPath = path;

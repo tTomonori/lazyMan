@@ -10,5 +10,9 @@ export default {
     icon: '/client/image/icon/',
     folderRootPath: '/folderRootPath'
   },
+  playlistType: {
+    FOLDER: 'folder:',
+    PLEYLIST: 'playList:',
+  },
   global: () => { return window.globalObj; },
 }

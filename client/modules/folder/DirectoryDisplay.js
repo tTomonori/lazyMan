@@ -39,7 +39,7 @@ const ELEMENT_MENU_CLASS = 'directoryDisplayElementMenu';
  * @property {function(DirectoryDispElement):void} onSelectFile ファイル選択時
  * @property {function(DirectoryDispElement):void} onSelectUi UI選択時
  * @property {function(DirectoryDispElement):void} onMenuClick メニューアイコンクリック時
- * @property {function(DirectoryDispElement):void} onIconClick ファイルアイコンクリック時
+ * @property {function(DirectoryDispElement, Number):Boolean} onIconClick ファイルアイコンクリック時(第二引数はクリック→1,ダブルクリック→2)(trueを返すとクリックイベントの伝搬を止める)
  * @property {Number} folderClickThreshold フォルダを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} fileClickThreshold ファイルを選択したと判定するクリック回数(0(選択不可), 1, 2)
  * @property {Number} uiClickThreshold UIを選択したと判定するクリック回数(0(選択不可), 1, 2)
@@ -95,13 +95,13 @@ export default class DirectoryDisplay extends ListDisplay {
   /**
    * アイコンがクリックされた
    * @param {String} key クリックされた要素の識別子
-   * @returns 
+   * @param {Number} clickNum クリック回数
+   * @returns {Boolean} クリックイベント関数の返り値を返す
    */
-  iconClicked (key) {
+  iconClicked (key, clickNum) {
     if (!this.directoryDisplayOption.onIconClick) { return; }
     let elem = this.getDirectoryElement(key);
-    this.directoryDisplayOption.onIconClick(elem);
-    return true;
+    return this.directoryDisplayOption.onIconClick(elem, clickNum);
   }
   /**
    * ドラッグ&ドロップされた
@@ -158,14 +158,19 @@ export default class DirectoryDisplay extends ListDisplay {
     element.append(img);
     $(img).on('click', (e) => {
       if (!this.directoryDisplayOption.onIconClick) { return; }
-      this.iconClicked(key);
-      // 親要素のイベント発火を止める
-      e.stopPropagation();
+      if (this.iconClicked(key, 1)) {
+        // クリックイベント関数がtrueを返した場合
+        // 親要素のイベント発火を止める
+        e.stopPropagation();
+      }
     });
     $(img).on('dblclick', (e) => {
       if (!this.directoryDisplayOption.onIconClick) { return; }
-      // 親要素のイベント発火を止める
-      e.stopPropagation();
+      if (this.iconClicked(key, 2)) {
+        // クリックイベント関数がtrueを返した場合
+        // 親要素のイベント発火を止める
+        e.stopPropagation();
+      }
     });
     if (dirElem.hoverIcon) {
       // ホバー中のアイコン設定

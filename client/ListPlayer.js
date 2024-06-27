@@ -99,9 +99,9 @@ export default class ListPlayer {
 
   /** 次の曲再生 */
   static playNext () {
-    let currentIndex = this.playListData.list.findIndex(data => data.path === this.playingData.path);
+    let currentIndex = this.playListData.list.findIndex(data => data.path === this.audioData.path);
     if (currentIndex < 0) { return; }
-    let nextIndex = (currentIndex + playListData.list.length + 1) % this.playListData.list.length;
+    let nextIndex = (currentIndex + this.playListData.list.length + 1) % this.playListData.list.length;
     this.play(nextIndex);
   }
 
