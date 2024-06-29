@@ -92,7 +92,7 @@ export default class ListPlayer {
     this.playingData = playData;
     this.audioData = playData;
     this.audiojQ.prop('title', this.playingData.name);
-    // this.audioDom.play(); // loadeddataイベントで再生する
+    this.audioDom.play(); // loadeddataイベントでも再生しているが、スマホで再生するにはここでのplay()呼び出しも必要
 
     gd.subject.sendMessage(this.PLAY_MESSAGE, { playlist: this.playListData, data: playData });
   }
