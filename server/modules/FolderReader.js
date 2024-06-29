@@ -3,7 +3,7 @@ const path = require('path');
 
 const CommonReader = require('../modules/common/CommonReader');
 
-const allowedExtname = ['.mp4', 'wav', '.mp3'];
+const allowedExtname = ['.mp4', '.wav', '.mp3'];
 
 let folderRootPath;
 let fileInfoPath;
