@@ -141,7 +141,10 @@ export default class DirectoryDisplay extends ListDisplay {
     let opt = Object.assign({}, dirElem.displayOption || {}, option || {});
 
     let element = $('<div>');
-    element.css({ height: opt.height || '50px' });
+    element.css({
+      height: opt.height || '30px',
+      overflow: 'hidden',
+    });
     // アイコン
     let img;
     if (typeof dirElem.icon === 'string') {
@@ -188,10 +191,9 @@ export default class DirectoryDisplay extends ListDisplay {
     if (dirElem.type !== DirectoryElementType.UI) {
       let menu = new IconButton({
         icon: 'menu.png',
-        size: { width: '', height: '70%' },
+        size: { width: '', height: '95%' },
         style: {
-          position: 'absolute',
-          right: '10px',
+          'margin-left': 'auto',
           display: this.option.isMenuDisplayed ? 'block' : 'none',
           'aspect-ratio': 1,
         }

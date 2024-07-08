@@ -64,7 +64,7 @@ export default class FileDisplay {
       saveButton = new IconButton({ icon: 'save.png', size: buttonSize });
       saveButton.dom.css({
         position: 'absolute',
-        right: `calc(${this.host.css('paddingRight')} + ${buttonSize} + 20px)`,
+        right: `calc(${this.host.css('paddingRight')} + ${buttonSize} + 10px)`,
       });
       this.host.append(saveButton.dom);
       saveButton.dom.on('mouseup', () => { this.onRegist(); });

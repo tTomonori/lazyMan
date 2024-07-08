@@ -1,6 +1,7 @@
 :root {
-  --headerHeight: 50px;
-  --menuWidth: 100px;
+  --headerHeight: 45px;
+  --menuWidth: 60px;
+  --viewPortPadding: 10px;
 }
 
 body {
@@ -37,6 +38,7 @@ input[type="number"]::-webkit-inner-spin-button {
   height: calc(100vh - var(--headerHeight));
   background-color: white;
   transition: width 0.5s;
+  line-height: 10px;
 }
 #leftMenu.close {
   width: 0;
@@ -67,8 +69,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 #viewPort {
   position: absolute;
-  height: calc(100% - 40px);
-  width: calc(100% - 40px);
-  padding: 20px;
+  height: calc(100% - var(--viewPortPadding) * 2);
+  width: calc(100% - var(--viewPortPadding) * 2);
+  padding: var(--viewPortPadding);
   overflow-y: scroll;
 }

@@ -44,17 +44,18 @@ async function init () {
 // 作成--------------------------------------------------
 /** ヘッダ作成 */
 function createHeader () {
+  let buttonSize = Number.parseFloat($('#header').css('height')) - 4 + 'px';
   // メニューボタン
   menuButton = new IconButton({
     icon: 'pocketBook.png',
-    size: '45px',
+    size: buttonSize,
     onClick: changeLeftMenuDisp,
   });
   headerDom.append(menuButton.dom);
   // 編集ボタン
   editButton = new IconButton({
     icon: 'marker.png',
-    size: '45px',
+    size: buttonSize,
     onClick: changeEditMode,
   });
   editButton.setProhibitonImage();
@@ -63,6 +64,7 @@ function createHeader () {
 
 /** メニュー作成 */
 function createMenuContents() {
+  leftMenuContent.append($('<br>'));
   // フォルダボタン
   folderButton = new IconButton({
     icon: 'folder.png',
@@ -70,7 +72,8 @@ function createMenuContents() {
     onClick: setDisplayFolderMode,
   });
   leftMenuContent.append(folderButton.dom);
-  leftMenuContent.append($('<br>'))
+  leftMenuContent.append($('<br>'));
+  leftMenuContent.append($('<br>'));
   // プレイリストボタン
   playListButton = new IconButton({
     icon: 'musicList.png',

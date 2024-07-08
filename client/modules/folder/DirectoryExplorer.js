@@ -90,8 +90,8 @@ export default class DirectoryExplorer {
     // 音声再生ボタン生成クロージャ
     let createMusicPlayerButton = (key) => {
       return new MusicPlayerButton({
-        size: '45px',
-        style: { 'margin-right': '10px', filter: 'invert(100%)' },
+        size: { height : '90%' },
+        style: { 'margin-right': '10px', filter: 'invert(100%)', 'aspect-ratio': '1' },
         musicKey: key,
         playList: () => { return this.createPlayListData(); },
       }).dom;

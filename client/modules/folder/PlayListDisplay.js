@@ -12,6 +12,11 @@ import MusicPlayerButton from '../component/button/MusicPlayerButton.js';
 
 const NEW_KEY = '/new';
 
+const PLAY_BUTTON_SIZE = '90%';
+const LIST_ELEMENT_HEIGHT = '30px';
+const LIST_MARGIN = '5px';
+const NEW_BUTTON_HEIGHT = '20px';
+
 /**
  * @typedef {Object} PlayListDisplayOption
  * @property {function():void} onBack
@@ -86,7 +91,7 @@ export default class PlayListDisplay {
     let editButton = new IconButton({ icon: 'quillPen.png', size: buttonSize });
     editButton.dom.css({
       position: 'absolute',
-      right: `calc(${this.view.css('paddingRight')} + ${buttonSize} + 20px)`,
+      right: `calc(${this.view.css('paddingRight')} + ${buttonSize} + 10px)`,
     });
     editButton.setDisabled(!this.isEditable());
     gd.subject.addObserver({ dom: editButton.dom[0], receiver: (msg, prm) => {
@@ -130,7 +135,7 @@ export default class PlayListDisplay {
         isMenuDisplayed: this.isEditable(),
         onDrop: (dragged, dropped) => { this.onDrop(dragged, dropped); },
         isDraggable: this.isEditable(),
-        lineMargin: '10px',
+        lineMargin: LIST_MARGIN,
       });
     }
     else {
@@ -167,8 +172,8 @@ export default class PlayListDisplay {
     // 音声再生ボタン生成クロージャ
     let createMusicPlayerButton = (key) => {
       return new MusicPlayerButton({
-        size: '45px',
-        style: { 'margin-right': '10px', filter: 'invert(100%)' },
+        size: { height : PLAY_BUTTON_SIZE },
+        style: { 'margin-right': '10px', filter: 'invert(100%)', 'aspect-ratio': '1' },
         musicKey: key,
         playList: () => { return this.createPlayListData(); },
       }).dom;
@@ -180,7 +185,7 @@ export default class PlayListDisplay {
         name: elem.fileInfo.name,
         icon: () => { return createMusicPlayerButton(elem.path); },
         hoverIcon: ct.path.icon + 'start.png',
-        displayOption: { height: '50px' },
+        displayOption: { height: LIST_ELEMENT_HEIGHT },
       };
     });
     // 編集モード時は新規追加ボタンを追加
@@ -190,7 +195,7 @@ export default class PlayListDisplay {
         key: NEW_KEY,
         name: '',
         icon: ct.path.icon + 'plus.png',
-        displayOption: { height: '20px' },
+        displayOption: { height: NEW_BUTTON_HEIGHT },
       });
     }
     return {
@@ -200,14 +205,15 @@ export default class PlayListDisplay {
   }
   /** 新規追加する音楽を選択する */
   selectNewMusic () {
+    let buttonSize = '30px';
     this.frontMostView = new FrontMostView(this.host, {
       coverStyle: {
         backgroundColor: 'rgba(0,0,0,0.3)',
-        padding: '50px',
+        padding: '10px',
       },
       boardStyle: {
         backgroundColor: 'black',
-        padding: '20px',
+        padding: '10px',
         borderRadius: '20px',
       },
       viewStyle: {},
@@ -219,7 +225,7 @@ export default class PlayListDisplay {
         this.frontMostView.close();
       },
       icon: 'returnArrow.png',
-      size: '30px',
+      size: buttonSize,
       style: { filter: 'invert(100%)' }
     });
     this.frontMostView.view.append(backButton.dom)
@@ -280,7 +286,7 @@ export default class PlayListDisplay {
     this.frontMostView = new FrontMostView(this.host, {
       coverStyle: {
         backgroundColor: 'rgba(0,0,0,0.3)',
-        padding: '20px',
+        padding: '10px',
       },
       boardStyle: {},
       viewStyle: {},
