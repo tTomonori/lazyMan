@@ -1,13 +1,16 @@
 .commonButton {
   display: inline-block;
   scale: 100%;
+}
+.commonButtonChild {
+  scale: 100%;
   transition: scale 0.3s;
 }
-.commonButton:hover {
+.commonButton:hover .commonButtonChild {
   scale: 95%;
 }
 
-.commonButton:active {
+.commonButton:active .commonButtonChild {
   scale: 87%;
 }
 

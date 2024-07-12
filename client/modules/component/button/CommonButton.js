@@ -14,6 +14,10 @@ export default class CommonButton {
   constructor (option) {
     this.dom = $('<div>');
     this.dom.addClass('commonButton');
+    this.domChild = $('<div>');
+    this.domChild.addClass('commonButtonChild');
+    this.domChild.css({ width: '100%', height: '100%' });
+    this.dom.append(this.domChild);
     this.option = Object.assign({
       onClick: () => {},
       size: '50px',

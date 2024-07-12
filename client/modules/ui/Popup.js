@@ -22,7 +22,7 @@ export default class Popup {
       }
       uncover();
     });
-    button.dom.text('OK');
+    button.domChild.text('OK');
     popup.footer.append(button.dom);
     cover.append(popup.popup);
     Cover.cover();
@@ -45,7 +45,7 @@ export default class Popup {
     };
     for (let choice of choices) {
       let button = this.createButton(() => { onSelect(choice); });
-      button.dom.text(choice);
+      button.domChild.text(choice);
       popup.footer.append(button.dom);
     }
     cover.append(popup.popup);
@@ -74,7 +74,7 @@ export default class Popup {
     };
     for (let choice of choices) {
       let button = this.createButton(() => { onSelect(choice); });
-      button.dom.text(choice);
+      button.domChild.text(choice);
       popup.footer.append(button.dom);
     }
     cover.append(popup.popup);

@@ -18,9 +18,9 @@ export default class IconButton extends CommonButton {
     super(thisOption);
     this.dom.addClass('iconButton');
 
-    this.dom.css('background-image', `url(${ct.path.icon}${this.option.icon}`);
-    this.dom.css('background-size', 'contain');
-    this.dom.css('background-repeat', 'no-repeat');
+    this.domChild.css('background-image', `url(${ct.path.icon}${this.option.icon}`);
+    this.domChild.css('background-size', 'contain');
+    this.domChild.css('background-repeat', 'no-repeat');
   }
   /** 禁止マーク表示中ならtrue */
   isProhibition () {
@@ -60,7 +60,7 @@ export default class IconButton extends CommonButton {
   /** 子要素生成 */
   createChildDom () {
     let dom = $('<div>');
-    this.dom.append(dom);
+    this.domChild.append(dom);
     return dom;
   }
 }
