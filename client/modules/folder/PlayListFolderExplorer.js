@@ -98,7 +98,7 @@ export default class PlayListFolderExplorer {
   /** 新規ボタン押下時 */
   async onSelectPlus () {
     Popup.popupInput('新規作成', ['フォルダ', 'プレイリスト', 'キャンセル'], (input, key, uncover) => {
-      if (!input) { return; }
+      if (!input) { uncover(); return; }
       switch (key) {
         case 'フォルダ':
           PlayListClient.newFolder(this.directoryInfo.current, input, (data) => { this.displayInfo(data); uncover(); });
