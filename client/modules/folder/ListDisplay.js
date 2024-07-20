@@ -68,24 +68,49 @@ export default class ListDisplay {
       let key = $(e.currentTarget).data(ELEMENTKEY_DATANAME);
       this.option.onDoubleClick(key);
     });
+
+    // 並び替えイベント
     let dragElement;
-    $(this.host).on('dragstart', `.${ELEMENT_CLASSNAME}`, (e) => {
-      dragElement = e.currentTarget;
-    });
-    $(this.host).on('dragend', `.${ELEMENT_CLASSNAME}`, (e) => {
+    /** ドラッグ対象取得 */
+    let getTarget = (e) => {
       let x = e.clientX;
       let y = e.clientY;
       let belowElems = document.elementsFromPoint(x, y);
       let dropElement = belowElems.find((elem) => {
         return $(elem).hasClass(ELEMENT_CLASSNAME);
       });
-      if (dragElement && dropElement) {
+      return dropElement;
+    };
+    // ドラッグ開始時処理
+    let startArrange = (e) => {
+      dragElement = getTarget(e);
+    };
+    // ドラッグ終了時処理
+    let endArrange = (e) => {
+      let dropElement = getTarget(e);
+      if (dragElement && dropElement && dragElement !== dropElement) {
         let dragKey = $(dragElement).data(ELEMENTKEY_DATANAME);
         let dropKey = $(dropElement).data(ELEMENTKEY_DATANAME);
         if (dragKey === dropKey) { return; }
         this.option.onDrop(dragKey, dropKey);
       }
       dragElement = null;
+    };
+    // PC用並び替えイベント
+    $(this.host).on('dragstart', `.${ELEMENT_CLASSNAME}`, (e) => {
+      startArrange(e);
+    });
+    $(this.host).on('dragend', `.${ELEMENT_CLASSNAME}`, (e) => {
+      endArrange(e);
+    });
+    // スマホ用並び替えイベント
+    $(this.host).on('touchstart', `.${ELEMENT_CLASSNAME}`, (e) => {
+      if (!this.listContainer.hasClass(DRAGGABLE_CLASSNAME)) { return; }
+      startArrange(e.changedTouches[0]);
+    });
+    $(this.host).on('touchend', `.${ELEMENT_CLASSNAME}`, (e) => {
+      if (!this.listContainer.hasClass(DRAGGABLE_CLASSNAME)) { return; }
+      endArrange(e.changedTouches[0]);
     });
   }
   /**
