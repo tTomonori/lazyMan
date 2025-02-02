@@ -45,7 +45,17 @@ export default class ListPlayer {
 
     $(document.body).append(this.playerControl);
 
-    this.audiojQ.on('ended', () => {
+    this.audioDom.addEventListener('ended', () => {
+      // 再生されていることが確認できるまで再生処理を実行し続ける
+      // (スマホでバックグラウンド再生していると、1回実行しただけでは再生されない場合がある)
+      let interval = setInterval(() => {
+        if (this.audioDom.paused  === false) {
+          clearInterval(interval);
+          return;
+        }
+        this.audioDom.play();
+      }, 500);
+      
       ListPlayer.playNext();
     })
 
