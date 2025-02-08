@@ -46,8 +46,12 @@ export default class ListPlayer {
     $(document.body).append(this.playerControl);
 
     this.audioDom.addEventListener('ended', () => {
+      // スマホでバックグラウンド再生していると、次が再生されない場合がある
+      // 少し時間をおいてから再生処理を実行する
+      setTimeout(() => {
+        ListPlayer.playNext();
+      }, 10);
       // 再生されていることが確認できるまで再生処理を実行し続ける
-      // (スマホでバックグラウンド再生していると、1回実行しただけでは再生されない場合がある)
       let interval = setInterval(() => {
         if (this.audioDom.paused  === false) {
           clearInterval(interval);
@@ -55,8 +59,6 @@ export default class ListPlayer {
         }
         this.audioDom.play();
       }, 500);
-      
-      ListPlayer.playNext();
     })
 
     this.playerControl.addClass('listPlayerControls_header');
