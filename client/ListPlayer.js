@@ -59,7 +59,11 @@ export default class ListPlayer {
         }
         this.audioDom.play();
       }, 500);
-    })
+    });
+    // 定期的に処理を実行してバックグラウンド処理が停止しないようにする
+    this.keep = () => { setTimeout(() => {
+      this.keep();
+    }, 5000);}
 
     this.playerControl.addClass('listPlayerControls_header');
 
